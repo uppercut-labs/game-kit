@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-mgba-smoke"
+version = "0.1.0"
+description = "Run a Game Boy Advance ROM in native mGBA in an isolated sandbox: key taps, frame stepping, RAM probe, screenshots and Lua assertions, with the screenshots checked."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["mgba", "gba", "game-boy-advance", "emulator", "smoke-test", "screenshots", "lua"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-mgba-smoke"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_mgba_smoke"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
