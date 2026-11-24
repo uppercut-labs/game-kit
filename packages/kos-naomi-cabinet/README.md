@@ -138,7 +138,7 @@ KcabSwitches sw = { 0 };
 uint32_t pressed = kcab_switches_update(&sw, held, &released);   /* held: KCAB_SW_TEST | KCAB_SW_SERVICE | the game's bits */
 ```
 
-The meters are the JVS board's running coin counts, 14 bits. The first reading is a baseline: coins in the meter at
+A `KcabCoins` that is all zero (a static one) is a valid fresh tracker with no cap. The meters are the JVS board's running coin counts, 14 bits. The first reading is a baseline: coins in the meter at
 power-on are not credits. A meter that falls (the driver subtracts from it when it gets high, or the board was reset)
 re-bases without a credit. `kcab_coins_pulse` takes the board's one-shot insert flags instead; use the meters or the
 pulses, not both. `kcab_switch_edges` is the same edge detection as a pure function. A new `KcabSwitches` sees a switch
@@ -178,7 +178,7 @@ Tested at 0.1.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
-| Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18, `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (eeprom 1,840 checks, cabinet 34, glue 24, adapter 50) |
+| Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18, `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (eeprom 1,840 checks, cabinet 36, glue 24, adapter 50) |
 | Windows 11, macOS | not run yet | waits for a maintainer machine |
 | KallistiOS build, cabinet, emulator | not run: no KOS toolchain in the test container | waits for a KOS machine |
 

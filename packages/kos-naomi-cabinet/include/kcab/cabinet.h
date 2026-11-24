@@ -17,11 +17,11 @@
 typedef struct KcabCoins {
     uint16_t last[2];
     uint16_t credits;
-    uint16_t cap; /* credits stop here */
+    uint16_t cap; /* credits stop here; 0 means no cap short of 65535 */
     uint8_t known; /* a baseline has been read */
 } KcabCoins;
 
-/* `cap` 0 means no cap short of 65535. */
+/* A KcabCoins that is all zero (a static one, say) is a valid fresh one with no cap. */
 void kcab_coins_init(KcabCoins *coins, uint16_t cap);
 
 /* Feeds the two slots' meters. Returns the credits added by this reading. */

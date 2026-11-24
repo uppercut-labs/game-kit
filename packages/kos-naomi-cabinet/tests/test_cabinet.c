@@ -63,6 +63,10 @@ static void test_meters(void)
 static void test_cap_and_pulse(void)
 {
     KcabCoins c;
+    static KcabCoins zeroed; /* never initialised: all zero is a fresh tracker */
+
+    CHECK(kcab_coins_pulse(&zeroed, 3) == 2 && zeroed.credits == 2, "an all-zero tracker works");
+    CHECK(feed(&zeroed, 5, 5) == 0 && feed(&zeroed, 6, 5) == 1 && zeroed.credits == 3, "and takes meters");
 
     kcab_coins_init(&c, 99);
     feed(&c, 0, 0);

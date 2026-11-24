@@ -4,13 +4,14 @@ void kcab_coins_init(KcabCoins *coins, uint16_t cap)
 {
     coins->last[0] = coins->last[1] = 0;
     coins->credits = 0;
-    coins->cap = cap ? cap : 0xFFFFu;
+    coins->cap = cap;
     coins->known = 0;
 }
 
 static uint16_t add(KcabCoins *coins, uint32_t count)
 {
-    uint32_t room = (uint32_t)coins->cap - (coins->credits < coins->cap ? coins->credits : coins->cap);
+    uint32_t cap = coins->cap ? coins->cap : 0xFFFFu;
+    uint32_t room = cap - (coins->credits < cap ? coins->credits : cap);
     uint32_t added = count < room ? count : room;
 
     coins->credits = (uint16_t)(coins->credits + added);
