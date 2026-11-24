@@ -74,7 +74,7 @@ capture: {
 
 ## What it replaces
 
-Small helpers of the same family that several projects each carry: a CoreGraphics window list filtered by owner, a window id and title lookup by process, and a ScreenCaptureKit one-window capture with an emulator-specific title test written into it. This package keeps the three jobs and makes the title test the `--title-contains` option. It does not carry over the H.264 recording mode of the capture helper, or the accessibility driver (`AXUIElement`, keyboard and mouse input) found in an app-specific tool: those are different jobs.
+Small helpers of the same family that several projects each carry: a CoreGraphics window list filtered by owner, a window id and title lookup by process, a one-line tool that prints the first on-screen normal window of an exactly named app, and a ScreenCaptureKit one-window capture with an emulator-specific title test written into it. The one-line tool is `find --owner NAME --min-size 0x0`, except that `find` matches part of the owner name and takes the largest window, not the first. This package keeps the three jobs and makes the title test the `--title-contains` option. It does not carry over the H.264 recording mode of the capture helper, or the accessibility driver (`AXUIElement`, keyboard and mouse input) found in an app-specific tool: those are different jobs.
 
 ## Working on it
 
