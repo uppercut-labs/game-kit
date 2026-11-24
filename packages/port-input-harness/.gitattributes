@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.ps1 text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.profile text eol=lf
+*.inc text eol=lf
+*.map text eol=lf

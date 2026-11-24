@@ -1,0 +1,40 @@
+# The made-up port of selftest.c: what each control gives, in its own bits.
+#   who      control            bits   primary
+gamepad  south            0x0001 primary
+gamepad  east             0x0002 primary
+gamepad  west             0x0004 primary
+gamepad  north            0x0008 primary
+gamepad  leftshoulder     0x0010 primary
+gamepad  rightshoulder    0x0020 primary
+gamepad  lefttrigger      0x0040 primary
+gamepad  righttrigger     0x0080 primary
+gamepad  back             0x0100 primary
+gamepad  start            0x0200 primary
+gamepad  dpup             0x0400 primary
+gamepad  dpright          0x0800 primary
+gamepad  dpdown           0x1000 primary
+gamepad  dpleft           0x2000 primary
+gamepad  leftstick-up     0x0400
+gamepad  leftstick-right  0x0800
+gamepad  leftstick-down   0x1000
+gamepad  leftstick-left   0x2000
+# guide, mute, touchpad, stick clicks, paddles: nothing in this port
+
+joystick button0          0x0004 primary
+joystick button1          0x0001 primary
+joystick button2          0x0002 primary
+joystick button3          0x0008 primary
+joystick button4          0x0010 primary
+joystick button5          0x0020 primary
+joystick button6          0x0040 primary
+joystick button7          0x0080 primary
+joystick button8          0x0100 primary
+joystick button9          0x0200 primary
+joystick hat-up           0x0400 primary
+joystick hat-right        0x0800 primary
+joystick hat-down         0x1000 primary
+joystick hat-left         0x2000 primary
+joystick axis1-           0x0400
+joystick axis0+           0x0800
+joystick axis1+           0x1000
+joystick axis0-           0x2000
