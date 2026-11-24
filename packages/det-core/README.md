@@ -91,8 +91,10 @@ A project that already has a generator with recorded replays should keep it, bec
 The code is the common part of several copies kept in console game projects. They agreed on the arithmetic and
 differed in small ways. Where they did, this is the version kept:
 
-- **Zero guard.** The main copy of the generator never reaches the all-zero state; several other small copies (in
-  software renderers and game-mode code) had no guard, so a zero seed froze them. Kept: the guarded version.
+- **Zero guard.** The main copy of the generator never reaches the all-zero state. Several other small copies (in
+  software renderers and game-mode code) had no guard in the step itself: some guarded the seed where they were
+  started, others relied on a non-zero constant, and a zero seed would have frozen any of them. Kept: the guard in
+  the step and in `det_rng_seed`, which gives the same numbers for every non-zero state.
 - **Bounded numbers.** The main copy takes the high bits (`(state * n) >> 32`); those copies used `state % n`,
   which favours low values and depends on the low bits, the weakest ones in xorshift. Kept: the high-bits version.
   A game that used `% n` gets a different sequence from the same seed.
