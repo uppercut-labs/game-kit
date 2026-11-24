@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-godot-render"
+version = "0.1.0"
+description = "Render a Godot scene offline with Movie Maker and check the result: trim frames to the run, check frame count, size and blank frames, hash every frame, encode bt709 H.264 and write a JSON manifest."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["godot", "movie-maker", "render", "ffmpeg", "x264", "bt709", "video"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-godot-render"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_godot_render"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
