@@ -11,6 +11,8 @@ Small, focused packages from Uppercut Labs for making, porting, testing and capt
 | [`uppercut-pixel-art-sheets`](packages/uppercut-pixel-art-sheets) | Python | Pillow helpers for indexed pixel-art sheets: palettes, pattern fills, a bitmap font and sheet packing |
 | [`uppercut-sound-effect-synth`](packages/uppercut-sound-effect-synth) | Python | Deterministic procedural sound effects: envelopes, filtered noise, sweeps, seeded variation and WAV output |
 | [`uppercut-gba-rom-verify`](packages/uppercut-gba-rom-verify) | Python | Checks a built Game Boy Advance ROM and its ELF before release: logo, title, game and maker codes, header complement, size and alignment, with a SHA-256 to pin |
+| [`port-sdl-input`](packages/port-sdl-input) | C | The SDL3 input layer for a game port: every keyboard and controller at once, positional mappings, two players with pinning and swap, SOCD cleaning, remapping, rumble and prompt letters, with the buttons given as data |
+| [`port-settings`](packages/port-settings) | C | A small key-value settings file for a game port: keeps key order, saves through a temporary file, reads typed values and UTF-8 paths on Windows, and plugs into port-sdl-input |
 
 ## Installing
 

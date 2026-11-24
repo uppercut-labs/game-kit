@@ -11,10 +11,16 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 prefix="${1:-}"
 extra=()
 [ -n "$prefix" ] && extra+=("-DCMAKE_PREFIX_PATH=$prefix")
+# Every example consumer takes every C package from this checkout, so a package that fetches another one at a tag
+# builds against the source beside it.
+overrides=()
+for dep in "$root"/packages/*/; do
+  [ -f "$dep/CMakeLists.txt" ] || continue
+  overrides+=("-DFETCHCONTENT_SOURCE_DIR_$(basename "$dep" | tr '[:lower:]-' '[:upper:]_')=$root")
+done
 for pkg in "$root"/packages/*/; do
   [ -f "$pkg/CMakeLists.txt" ] || continue
   name="$(basename "$pkg")"
-  var="FETCHCONTENT_SOURCE_DIR_$(echo "$name" | tr '[:lower:]-' '[:upper:]_')"
   echo "== $name"
   cmake -S "$pkg" -B "$root/build/$name" -G Ninja -DCMAKE_BUILD_TYPE=Release ${extra[@]+"${extra[@]}"}
   cmake --build "$root/build/$name"
@@ -22,7 +28,7 @@ for pkg in "$root"/packages/*/; do
   if [ -f "$pkg/examples/consumer/CMakeLists.txt" ]; then
     echo "== $name: the example consumer"
     cmake -S "$pkg/examples/consumer" -B "$root/build/$name-consumer" -G Ninja -DCMAKE_BUILD_TYPE=Release \
-      "-D$var=$root" ${extra[@]+"${extra[@]}"}
+      "${overrides[@]}" ${extra[@]+"${extra[@]}"}
     cmake --build "$root/build/$name-consumer"
     ctest --test-dir "$root/build/$name-consumer" --output-on-failure
   fi

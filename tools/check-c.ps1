@@ -14,6 +14,12 @@ $root = Split-Path -Parent $PSScriptRoot
 $common = @("-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_C_COMPILER=$Compiler")
 if ($Prefix) { $common += "-DCMAKE_PREFIX_PATH=$Prefix" }
 
+# Every example consumer takes every C package from this checkout, so a package that fetches another one at a tag
+# builds against the source beside it.
+$overrides = @(Get-ChildItem -Path (Join-Path $root "packages") -Directory |
+    Where-Object { Test-Path (Join-Path $_.FullName "CMakeLists.txt") } |
+    ForEach-Object { "-DFETCHCONTENT_SOURCE_DIR_" + $_.Name.ToUpperInvariant().Replace("-", "_") + "=$root" })
+
 function Invoke-Native {
     param([string]$Exe, [string[]]$Arguments)
     & $Exe @Arguments
@@ -23,7 +29,6 @@ function Invoke-Native {
 foreach ($pkg in Get-ChildItem -Path (Join-Path $root "packages") -Directory) {
     if (-not (Test-Path (Join-Path $pkg.FullName "CMakeLists.txt"))) { continue }
     $name = $pkg.Name
-    $var = "FETCHCONTENT_SOURCE_DIR_" + $name.ToUpperInvariant().Replace("-", "_")
     $build = Join-Path $root "build\$name"
     Write-Host "== $name"
     Invoke-Native cmake (@("-S", $pkg.FullName, "-B", $build) + $common)
@@ -33,7 +38,7 @@ foreach ($pkg in Get-ChildItem -Path (Join-Path $root "packages") -Directory) {
     if (Test-Path (Join-Path $consumer "CMakeLists.txt")) {
         Write-Host "== ${name}: the example consumer"
         $cbuild = Join-Path $root "build\$name-consumer"
-        Invoke-Native cmake (@("-S", $consumer, "-B", $cbuild, "-D$var=$root") + $common)
+        Invoke-Native cmake (@("-S", $consumer, "-B", $cbuild) + $overrides + $common)
         Invoke-Native cmake @("--build", $cbuild)
         Invoke-Native ctest @("--test-dir", $cbuild, "--output-on-failure")
     }
