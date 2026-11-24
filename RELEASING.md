@@ -16,7 +16,7 @@ python tools/release_gate.py --artifact <the packed artifact>
 
 1. Bump `version` in `packages/<name>/package.json`.
 2. `npm install && npm run check`
-3. `npm pack --workspace packages/<name> --pack-destination dist-pack`
+3. `mkdir -p dist-pack && npm pack --workspace packages/<name> --pack-destination dist-pack`
 4. Run the gate with `--artifact dist-pack/<tarball>.tgz`.
 5. `npm publish dist-pack/<tarball>.tgz --access public`
 6. Tag the commit `<name>@<version>` and push the tag.
