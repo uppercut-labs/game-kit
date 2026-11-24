@@ -32,11 +32,20 @@ const OPEN = 1;
 /** Why an operation ended, as passed to `dispose`. */
 export type DisposeReason = 'completed' | 'failed' | 'cancelled' | 'disconnected';
 
+/**
+ * Extra top-level fields for a `started`, `event` or `completed` message, for a controller that defines fields beyond
+ * protocol v1 (for example a frame number for a movie recorder). Cappy as published refuses unknown fields, so leave
+ * these out unless your controller documents them. The fields of the protocol itself cannot be overridden.
+ */
+export type ExtensionFields = Readonly<Record<string, unknown>>;
+
 /** What a finished operation reports in `completed`. */
 export interface OperationResult {
   result?: Record<string, unknown>;
   /** The replay payload of a freeform recording. See `inlineReplay` and `fileReplay`. */
   replay?: ReplayHandoff;
+  /** Extension fields for the `completed` message. */
+  fields?: ExtensionFields;
 }
 
 /** What a handler uses to report on the operation it is running. Every method does nothing once the operation has ended. */
@@ -45,14 +54,14 @@ export interface OperationContext {
   /** Aborted when the operation is cancelled, fails, completes or the connection drops. */
   readonly signal: AbortSignal;
   /** Tells Cappy the operation is running. Sends once; later calls return false. */
-  started(): boolean;
+  started(fields?: ExtensionFields): boolean;
   /**
    * Reports an event. `t` is operation-relative presented time in milliseconds (never wall-clock time) and is clamped
    * to zero or more. Throws a `TypeError` for a name Cappy would reject, so the mistake shows up in the handler.
    */
-  event(name: string, t: number, payload?: unknown, durationMs?: number): boolean;
+  event(name: string, t: number, payload?: unknown, options?: { durationMs?: number; fields?: ExtensionFields }): boolean;
   /** Ends the operation as completed. Sends `started` first when it was not sent, because Cappy never accepts a `completed` before it. */
-  completed(result?: Record<string, unknown>, replay?: ReplayHandoff): boolean;
+  completed(result?: Record<string, unknown>, replay?: ReplayHandoff, fields?: ExtensionFields): boolean;
   /** Ends the operation as failed. */
   failed(code: string, message: string): boolean;
 }
@@ -447,7 +456,7 @@ export class CappyAdapter {
   private async run(active: Active, call: () => Promise<OperationResult | void> | OperationResult | void, fallbackCode: string): Promise<void> {
     try {
       const outcome = await call();
-      if (isOperationResult(outcome)) active.context.completed(outcome.result, outcome.replay);
+      if (isOperationResult(outcome)) active.context.completed(outcome.result, outcome.replay, outcome.fields);
     } catch (error) {
       await this.failActive(active, failureCode(error, fallbackCode), failureMessage(error));
     }
@@ -466,38 +475,40 @@ export class CappyAdapter {
     return {
       op: active.op,
       signal: active.abort.signal,
-      started: () => {
+      started: (fields) => {
         if (!live() || active.startedSent) return false;
         active.startedSent = true;
-        this.send({ type: 'started', op: active.op });
+        this.send({ ...fields, type: 'started', op: active.op } as AdapterMessage);
         return true;
       },
-      event: (name, t, payload, durationMs) => {
+      event: (name, t, payload, options) => {
         if (!EVENT_NAME.test(name)) throw new TypeError(`event name "${name}" is not one Cappy accepts`);
         if (typeof t !== 'number' || !Number.isFinite(t)) throw new TypeError(`event time must be a finite number, got ${String(t)}`);
         if (!live()) return false;
         this.send({
+          ...options?.fields,
           type: 'event',
           op: active.op,
           t: Math.max(0, t),
           event: name,
-          ...(durationMs === undefined ? {} : { durationMs: Math.max(0, durationMs) }),
+          ...(options?.durationMs === undefined ? {} : { durationMs: Math.max(0, options.durationMs) }),
           ...(payload === undefined ? {} : { payload }),
-        });
+        } as AdapterMessage);
         return true;
       },
-      completed: (result, replay) => {
+      completed: (result, replay, fields) => {
         if (!live()) return false;
         if (!active.startedSent) {
           active.startedSent = true;
           this.send({ type: 'started', op: active.op });
         }
         this.send({
+          ...fields,
           type: 'completed',
           op: active.op,
           ...(result === undefined ? {} : { result }),
           ...(replay === undefined ? {} : { replay }),
-        });
+        } as AdapterMessage);
         void this.finish(active, 'completed');
         return true;
       },

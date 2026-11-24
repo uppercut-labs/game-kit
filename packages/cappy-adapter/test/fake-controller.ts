@@ -68,7 +68,7 @@ function checkScenario(scenario: unknown): string | undefined {
 }
 
 /** The reason Cappy would refuse an adapter message, or undefined when the message is well formed. */
-export function schemaViolation(message: unknown): string | undefined {
+export function schemaViolation(message: unknown, extensionFields: readonly string[] = []): string | undefined {
   if (!isObject(message) || typeof message.type !== 'string') return 'not a message';
   const op = (): string | undefined => (typeof message.op === 'string' && OP.test(message.op) ? undefined : `${message.type}: op`);
   switch (message.type) {
@@ -92,10 +92,10 @@ export function schemaViolation(message: unknown): string | undefined {
       return message.scenarios.map(checkScenario).find((problem) => problem !== undefined);
     case 'ready':
     case 'started':
-      return onlyKeys(message, ['type', 'op'], message.type) ?? op();
+      return onlyKeys(message, ['type', 'op', ...(message.type === 'started' ? extensionFields : [])], message.type) ?? op();
     case 'event':
       return (
-        onlyKeys(message, ['type', 'op', 't', 'event', 'durationMs', 'payload'], 'event') ??
+        onlyKeys(message, ['type', 'op', 't', 'event', 'durationMs', 'payload', ...extensionFields], 'event') ??
         op() ??
         (typeof message.t !== 'number' || !(message.t >= 0) ? 'event: t' : undefined) ??
         (typeof message.event !== 'string' || !EVENT.test(message.event) ? 'event: name' : undefined) ??
@@ -103,7 +103,7 @@ export function schemaViolation(message: unknown): string | undefined {
       );
     case 'completed':
       return (
-        onlyKeys(message, ['type', 'op', 'result', 'replay'], 'completed') ??
+        onlyKeys(message, ['type', 'op', 'result', 'replay', ...extensionFields], 'completed') ??
         op() ??
         (message.result !== undefined && !isObject(message.result) ? 'completed: result' : undefined) ??
         (message.replay !== undefined ? checkReplay(message.replay) : undefined)
@@ -133,6 +133,8 @@ export interface FakeControllerOptions {
   silent?: boolean;
   /** Send this message in the same tick as the welcome. */
   rightBehindWelcome?: ControllerMessage;
+  /** Extra top-level fields accepted on started, event and completed, like a controller that extends the protocol. */
+  extensionFields?: string[];
   /** Ping every this many milliseconds once welcomed. */
   pingEveryMs?: number;
 }
@@ -273,7 +275,7 @@ export class FakeController {
       this.violations.push('not JSON');
       return;
     }
-    const problem = schemaViolation(message);
+    const problem = schemaViolation(message, this.options.extensionFields);
     if (problem !== undefined) {
       this.violations.push(problem);
       return;

@@ -3,6 +3,7 @@ export {
   type AdapterHandler,
   type CappyAdapterOptions,
   type DisposeReason,
+  type ExtensionFields,
   type Operation,
   type OperationContext,
   type OperationResult,

@@ -70,7 +70,7 @@ An `Operation` has three optional methods:
 | `stop(context)` | Cappy sent `stop` (a freeform recording or a replay). Return `{ result?, replay? }` to complete. Ignored when absent |
 | `dispose(reason)` | Once, however the operation ends: `completed`, `failed`, `cancelled` or `disconnected` |
 
-The `context` has `op`, a `signal` (an `AbortSignal` that aborts when the operation ends), and `started()`, `event(name, t, payload?, durationMs?)`, `completed(result?, replay?)` and `failed(code, message)`. Each returns `false` and does nothing once the operation has ended, so a late event from a process you are killing never reaches Cappy. `t` is operation-relative presented time in milliseconds, never wall-clock time. `completed` sends `started` first when you did not, because Cappy never accepts a `completed` before it.
+The `context` has `op`, a `signal` (an `AbortSignal` that aborts when the operation ends), and `started()`, `event(name, t, payload?, { durationMs? })`, `completed(result?, replay?)` and `failed(code, message)`. Each returns `false` and does nothing once the operation has ended, so a late event from a process you are killing never reaches Cappy. `t` is operation-relative presented time in milliseconds, never wall-clock time. `completed` sends `started` first when you did not, because Cappy never accepts a `completed` before it.
 
 A handler that throws fails the operation. A `CappyAdapterError` (or any error with a string `code`) chooses the code Cappy sees; otherwise the code is `PREPARE_FAILED`, `OPERATION_FAILED`, `STOP_FAILED`, `RECORD_FAILED` or, for a replay, `REPLAY_UNSUPPORTED`. Messages are cut to the 2000 characters Cappy accepts.
 
@@ -94,7 +94,7 @@ The message types (`AdapterMessage`, `ControllerMessage`, `ScenarioDefinition`, 
 ## Notes
 
 - The constructor checks the capability names and scenario registry against the patterns Cappy enforces, so a bad scenario id fails at start-up and not in the middle of a capture.
-- The client sends only fields that protocol v1 defines. Cappy refuses a message with an unknown field, so an adapter that adds one (for example a `frame` number on `started` or `event`) fails its operation. Put such values in an event's `payload`.
+- The client sends only the fields that protocol v1 defines, unless a handler asks for more. Cappy as published (1.0.2) refuses a message with an unknown field and fails the operation, so put extra values in an event's `payload`. For a controller that does define extra fields (a frame number for a movie recorder, say), `started(fields)`, `event(name, t, payload, { fields })`, `completed(result, replay, fields)` and the `fields` of a returned `OperationResult` add them. The protocol's own fields cannot be overridden.
 - Per-game scenario lists, launch commands and render steps stay in the game's own adapter. This package knows nothing about any game.
 - The tests run a fake controller written from the protocol page and its message schemas. The same client was also run once against Cappy's own controller code to check that they agree.
 

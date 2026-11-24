@@ -25,6 +25,14 @@ describe('the fake controller schema', () => {
     }
   });
 
+  it('accepts a named extension field only where it was allowed', () => {
+    expect(schemaViolation({ type: 'started', op: 'op_1', frame: 0 }, ['frame'])).toBeUndefined();
+    expect(schemaViolation({ type: 'event', op: 'op_1', t: 0, event: 'HIT', frame: 3 }, ['frame'])).toBeUndefined();
+    expect(schemaViolation({ type: 'completed', op: 'op_1', frame: 3 }, ['frame'])).toBeUndefined();
+    expect(schemaViolation({ type: 'started', op: 'op_1', other: 0 }, ['frame'])).toMatch(/unrecognized key/);
+    expect(schemaViolation({ type: 'ready', op: 'op_1', frame: 0 }, ['frame'])).toMatch(/unrecognized key/);
+  });
+
   it('refuses bad names, times and codes', () => {
     expect(schemaViolation({ type: 'event', op: 'op_1', t: -1, event: 'HIT' })).toBeDefined();
     expect(schemaViolation({ type: 'event', op: 'op_1', t: 1, event: '1HIT' })).toBeDefined();

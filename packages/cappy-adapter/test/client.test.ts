@@ -185,7 +185,7 @@ describe('scenarios', () => {
           async start(context) {
             context.started();
             context.event('BOSS_APPEAR', 100);
-            context.event('IMPACT', 500, { force: 3 }, 120);
+            context.event('IMPACT', 500, { force: 3 }, { durationMs: 120 });
             return { result: { events: 2 } };
           },
         };
@@ -259,6 +259,37 @@ describe('scenarios', () => {
     await controller.waitFor((message) => message.type === 'completed');
     expect(controller.of('event')[0]?.t).toBe(0);
     expect(errors).toEqual(['TypeError', 'TypeError']);
+    expect(controller.violations).toEqual([]);
+  });
+
+  it('passes extension fields through started, event and completed, and never lets them replace protocol fields', async () => {
+    const controller = await listen({ extensionFields: ['frame'] });
+    await connected(controller, {
+      prepareScenario: () => ({
+        start(context) {
+          context.started({ frame: 0, type: 'bogus', op: 'bogus' });
+          context.event('HIT', 100, { n: 1 }, { fields: { frame: 6, event: 'bogus' } });
+          return { result: { ok: true }, fields: { frame: 9 } };
+        },
+      }),
+    });
+    const op = controller.prepareScenario('idle');
+    await controller.waitFor((message) => message.type === 'ready');
+    controller.start(op);
+    await controller.waitFor((message) => message.type === 'completed');
+    expect(controller.of('started')[0]).toEqual({ type: 'started', op, frame: 0 });
+    expect(controller.of('event')[0]).toEqual({ type: 'event', op, t: 100, event: 'HIT', payload: { n: 1 }, frame: 6 });
+    expect(controller.of('completed')[0]).toEqual({ type: 'completed', op, result: { ok: true }, frame: 9 });
+    expect(controller.violations).toEqual([]);
+  });
+
+  it('leaves extension fields out unless a handler asks, so a strict controller sees plain protocol v1', async () => {
+    const controller = await listen();
+    await connected(controller, { prepareScenario: () => ({ start: (context) => { context.started(); context.event('E', 1); return {}; } }) });
+    const op = controller.prepareScenario('idle');
+    await controller.waitFor((message) => message.type === 'ready');
+    controller.start(op);
+    await controller.waitFor((message) => message.type === 'completed');
     expect(controller.violations).toEqual([]);
   });
 
