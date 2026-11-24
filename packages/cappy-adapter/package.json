@@ -1,0 +1,52 @@
+{
+  "name": "@uppercut-labs/cappy-adapter",
+  "version": "0.1.0",
+  "description": "A typed client for Cappy's game adapter protocol v1: handshake, scenario registry, scenario, recording and replay operations, heartbeat and error codes, plus a child-process runner with an output ring and a clean shutdown.",
+  "license": "MIT",
+  "author": "Uppercut Labs <packages@uppercut-labs.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
+  },
+  "keywords": [
+    "cappy",
+    "capture",
+    "game-adapter",
+    "websocket",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uppercut-labs/game-kit.git",
+    "directory": "packages/cappy-adapter"
+  },
+  "bugs": {
+    "url": "https://github.com/uppercut-labs/game-kit/issues"
+  },
+  "homepage": "https://github.com/uppercut-labs/game-kit/tree/main/packages/cappy-adapter#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.1",
+    "ws": "8.21.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
