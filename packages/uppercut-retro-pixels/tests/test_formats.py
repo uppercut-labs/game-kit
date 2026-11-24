@@ -1,6 +1,6 @@
 import pytest
 
-from synthetic import all_levels_rgba, gradient_rgba
+from rp_synthetic import all_levels_rgba, gradient_rgba
 from uppercut_retro_pixels import (
     ABGR1555,
     ABGR4444,
