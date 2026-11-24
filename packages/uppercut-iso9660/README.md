@@ -30,7 +30,7 @@ with IsoImage("game.iso") as disc:                  # or a .bin dump, or a binar
 | `find(path)` | an entry by path; raises `IsoNotFound` (also a `FileNotFoundError`) |
 | `read_file(path, limit=None)`, `read_extent(entry, offset, length)`, `iter_file(path)` | file contents, whole, a slice, or in pieces |
 | `sha256(path)`, `extract(path, destination)` | hash a file, or copy it out and get `ExtractResult(size, sha256)` |
-| `read_sectors(lba, count)` | the 2048-byte user data of raw sectors, whatever the layout |
+| `read_sectors(lba, count)`, `read_at(lba, offset, length)` | the 2048-byte user data of sectors, whatever the layout; or bytes from an offset into the extent at a sector number, without stopping at a file's recorded size |
 
 `extract` writes to a temporary file next to the destination and renames it into place only after the whole file was read and hashed, so a failure leaves no partial file and leaves an earlier file at the destination as it was.
 

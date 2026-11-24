@@ -109,6 +109,19 @@ def test_read_whole_files_and_extents(image_path):
         assert image.read_extent(entry, 0, 0) == b""
 
 
+def test_read_at_works_from_a_sector_number_and_may_pass_the_end_of_the_file(image_path):
+    with IsoImage(image_path) as image:
+        entry = image.find("DATA.BIN")
+        assert image.read_at(entry.lba, 2040, 20) == PAYLOAD[2040:2060]
+        assert image.read_at(entry.lba, 0, 0) == b""
+        tail = image.read_at(entry.lba, 4096, 2048)  # the last sector, past the file's 5000 bytes
+        assert tail[: 5000 - 4096] == PAYLOAD[4096:] and len(tail) == 2048
+        with pytest.raises(IsoError, match="outside the image"):
+            image.read_at(image.sector_count, 0, 1)
+        with pytest.raises(IsoError, match="negative"):
+            image.read_at(entry.lba, -1, 1)
+
+
 def test_read_bounds(image_path):
     with IsoImage(image_path) as image:
         entry = image.find("DATA.BIN")

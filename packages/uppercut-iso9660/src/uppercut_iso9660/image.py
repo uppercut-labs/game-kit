@@ -227,6 +227,20 @@ class IsoImage:
         start = offset - first * SECTOR_SIZE
         return data[start : start + length]
 
+    def read_at(self, lba: int, offset: int, length: int) -> bytes:
+        """``length`` bytes starting ``offset`` bytes into the extent that begins at sector ``lba``, bounded only by
+        the image. Unlike ``read_extent`` it does not stop at a file's recorded size, so a reader that works from
+        sector numbers (a packed archive that stores its own offsets) can use the padding of the last sector."""
+        if offset < 0 or length < 0:
+            raise IsoError("offset and length cannot be negative")
+        if length == 0:
+            return b""
+        first = offset // SECTOR_SIZE
+        last = (offset + length + SECTOR_SIZE - 1) // SECTOR_SIZE
+        data = self.read_sectors(lba + first, last - first)
+        start = offset - first * SECTOR_SIZE
+        return data[start : start + length]
+
     # Directories.
 
     def listdir(self, directory: Union[DirectoryEntry, str, None] = None) -> list[DirectoryEntry]:
