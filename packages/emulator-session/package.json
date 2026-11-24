@@ -1,0 +1,52 @@
+{
+  "name": "@uppercut-labs/emulator-session",
+  "version": "0.1.0",
+  "description": "Runs an emulator for a headless capture: an isolated profile with settings overrides, muted and allowed to run in the background, output read through a bounded line reader with noise filters, window captures at given seconds past boot latency, and a stop that signals only the launched process. Per-emulator launch profiles are data.",
+  "license": "MIT",
+  "author": "Uppercut Labs <packages@uppercut-labs.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
+  },
+  "keywords": [
+    "emulator",
+    "capture",
+    "screenshots",
+    "game-testing",
+    "headless",
+    "ares",
+    "flycast",
+    "ppsspp",
+    "pcsx2"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uppercut-labs/game-kit.git",
+    "directory": "packages/emulator-session"
+  },
+  "bugs": {
+    "url": "https://github.com/uppercut-labs/game-kit/issues"
+  },
+  "homepage": "https://github.com/uppercut-labs/game-kit/tree/main/packages/emulator-session#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
