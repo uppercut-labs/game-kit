@@ -51,7 +51,7 @@ typedef struct sb_arcade_limits {
 void sb_arcade_defaults(sb_arcade_profile* profile);
 
 /* Non-zero when every setting and row is within the limits and every empty row is truly empty. */
-int sb_arcade_valid(const sb_arcade_profile* profile, const sb_arcade_limits* limits);
+uint8_t sb_arcade_valid(const sb_arcade_profile* profile, const sb_arcade_limits* limits);
 
 /*
  * The 68-byte block:

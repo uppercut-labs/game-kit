@@ -68,8 +68,8 @@ typedef struct sb_storage {
     sb_result (*write)(void* context, uint8_t slot, const uint8_t* buffer, size_t length);
 } sb_storage;
 
-/* A payload check, run on a loaded record and before a save. Return non-zero when the payload is acceptable. */
-typedef int (*sb_validate_fn)(void* context, const uint8_t* payload);
+/* A payload check, run on a loaded record and before a save. Return non-zero (1) when the payload is acceptable. */
+typedef uint8_t (*sb_validate_fn)(void* context, const uint8_t* payload);
 
 typedef struct sb_store {
     sb_format format;

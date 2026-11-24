@@ -13,7 +13,7 @@ void sb_arcade_defaults(sb_arcade_profile* profile) {
     profile->settings.effects = 8u;
 }
 
-static int row_valid(const sb_arcade_record* row, const sb_arcade_limits* limits) {
+static uint8_t row_valid(const sb_arcade_record* row, const sb_arcade_limits* limits) {
     unsigned i;
     if (row->level > limits->level_max) return 0;
     if (row->level == 0u) {
@@ -26,7 +26,7 @@ static int row_valid(const sb_arcade_record* row, const sb_arcade_limits* limits
     return 1;
 }
 
-int sb_arcade_valid(const sb_arcade_profile* profile, const sb_arcade_limits* limits) {
+uint8_t sb_arcade_valid(const sb_arcade_profile* profile, const sb_arcade_limits* limits) {
     unsigned i;
     if (!profile || !limits) return 0;
     if (profile->settings.display > limits->display_max) return 0;
@@ -74,7 +74,7 @@ sb_result sb_arcade_decode(const uint8_t in[SB_ARCADE_PAYLOAD_BYTES], const sb_a
     return SB_OK;
 }
 
-static int block_valid(void* context, const uint8_t* payload) {
+static uint8_t block_valid(void* context, const uint8_t* payload) {
     sb_arcade_profile scratch;
     return sb_arcade_decode(payload, (const sb_arcade_limits*)context, &scratch) == SB_OK;
 }

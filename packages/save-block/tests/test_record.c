@@ -322,7 +322,7 @@ static void sequence_wraps(void) {
     }
 }
 
-static int only_even_first_byte(void* context, const uint8_t* payload) {
+static uint8_t only_even_first_byte(void* context, const uint8_t* payload) {
     unsigned* calls = (unsigned*)context;
     (*calls)++;
     return (payload[0] & 1u) == 0u;
