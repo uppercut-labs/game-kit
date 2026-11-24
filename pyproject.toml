@@ -1,0 +1,18 @@
+[project]
+name = "game-kit-workspace"
+version = "0"
+requires-python = ">=3.10"
+description = "Workspace root for the Uppercut Labs Python game development packages. Not published."
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/uppercut-*"]
+
+[dependency-groups]
+dev = ["pytest==8.4.2"]
+
+[tool.pytest.ini_options]
+testpaths = ["packages"]
+addopts = "--import-mode=importlib"

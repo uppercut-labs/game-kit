@@ -1,0 +1,13 @@
+# gitleaks settings for tools/release_gate.py. The default rules apply; installed dependencies, virtual environments
+# and build output are not this repository's files (the gate scans packed artifacts separately).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Installed dependencies and build scratch, not repository content"
+paths = [
+  '''(^|[\\/])node_modules[\\/]''',
+  '''(^|[\\/])dist-pack[\\/]''',
+  '''(^|[\\/])\.venv[\\/]''',
+  '''(^|[\\/])build(-[^\\/]*)?[\\/]''',
+]
