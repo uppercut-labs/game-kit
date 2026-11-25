@@ -1,4 +1,4 @@
-"""Puts this folder on the import path so the tests can share the helpers in cases.py."""
+"""Puts this folder on the import path so the tests can share the helpers in replay_cases.py."""
 
 import sys
 from pathlib import Path

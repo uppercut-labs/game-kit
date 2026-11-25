@@ -1,4 +1,4 @@
-"""Puts this folder on the import path so the tests can share the cases in cases.py."""
+"""Puts this folder on the import path so the tests can share the cases in mesh_cases.py."""
 
 import sys
 from pathlib import Path

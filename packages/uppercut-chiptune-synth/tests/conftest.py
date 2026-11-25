@@ -1,4 +1,4 @@
-"""Puts this folder on the import path so the tests can share the synthetic cases in cases.py."""
+"""Puts this folder on the import path so the tests can share the synthetic cases in chiptune_cases.py."""
 
 import sys
 from pathlib import Path

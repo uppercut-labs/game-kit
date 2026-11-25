@@ -15,7 +15,7 @@ import sys
 
 import numpy as np
 
-import cases
+import mesh_cases as cases
 
 
 def load(name, path):
