@@ -144,6 +144,34 @@ def test_font_is_complete_and_rectangular():
     assert len({FONT_5X7[c] for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}) == 36
 
 
+def test_font_is_the_shared_source_when_the_monorepo_is_present():
+    """The table is generated from bitmap-font's data file; rebuild it from that file and compare."""
+    import importlib.util
+    import sys
+    from pathlib import Path
+
+    tool = Path(__file__).resolve().parents[2] / "bitmap-font" / "tools" / "gen_bitmap_font.py"
+    if not tool.is_file():
+        pytest.skip("bitmap-font is not next to this package")
+    spec = importlib.util.spec_from_file_location("gen_bitmap_font_for_sheets", tool)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    font = module.load()["5x7"]
+    assert set(FONT_5X7) == {chr(c) for c in font.glyphs}
+    for code, rows in font.glyphs.items():
+        assert FONT_5X7[chr(code)] == tuple(r.replace(".", "0").replace("#", "1") for r in rows)
+
+
+def test_font_shapes_that_the_shared_source_settled():
+    assert FONT_5X7["I"] == ("01110", "00100", "00100", "00100", "00100", "00100", "01110")
+    assert FONT_5X7["."] == ("00000", "00000", "00000", "00000", "00000", "01100", "01100")
+    assert FONT_5X7["D"] == ("11110", "10001", "10001", "10001", "10001", "10001", "11110")
+    assert FONT_5X7["6"][0] == "01110"
+    assert FONT_5X7["9"][-2:] == ("00001", "01110")
+    assert all(ch in FONT_5X7 for ch in "$&*;@[\\]^`|~\"")
+
+
 def test_draw_text_indexed_and_rgb():
     im = new_indexed(40, 10)
     adv = draw_text(ImageDraw.Draw(im), "ab", 1, 1, 2)
