@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-retro-pixels"
+version = "0.1.0"
+description = "Retro console pixel formats as pure functions: RGB565, ARGB4444, ARGB1555, RGBA5551 and BGR555, R/B swap, block swizzle, RLE, palette ramps and a glyph-atlas packer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["rgb565", "argb4444", "argb1555", "rgba5551", "swizzle", "texture", "atlas", "retro", "console"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Topic :: Multimedia :: Graphics",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-retro-pixels"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_retro_pixels"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-rom-headers"
+version = "0.1.0"
+description = "Compute, fix and verify the header checksums of Nintendo 64, Mega Drive and 32X, and Game Boy Advance ROM images."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["rom", "header", "checksum", "n64", "mega-drive", "32x", "gba", "homebrew"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.scripts]
+uppercut-rom-headers = "uppercut_rom_headers.cli:main"
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-rom-headers"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_rom_headers"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]

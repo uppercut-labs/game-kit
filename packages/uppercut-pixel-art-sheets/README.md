@@ -45,7 +45,7 @@ print(meta[1])   # {'index': 1, 'name': 'B', 'col': 1, 'row': 0, 'x': 16, 'y': 0
 | `quantize_indexed(image, colors=16, *, transparent_corner=True)` | Adaptive palette reduction, optionally followed by `force_corner_transparent`. |
 | `indexed_to_rgba(image, *, transparent_index=0)` | RGBA copy with one index made transparent. |
 | `stamp_pattern(draw, pattern, x, y, color, *, scale=1, ink="1")` | Draws each `ink` character of a list of strings as a block. Works on indexed and RGB images. |
-| `FONT_5X7` | Glyph table for letters, digits and common punctuation. |
+| `FONT_5X7` | Glyph table for capitals, digits and punctuation (67 glyphs, no lowercase). It is generated from the font source in the `bitmap-font` package of this repository, the same one its C tables come from; `_font5x7.py` is generated, so change `bitmap-font/data/bitmap-fonts.txt` and run its generator instead of editing it. |
 | `draw_text(draw, text, x, y, color, *, font=FONT_5X7, spacing=6, scale=1)` | Draws upper-cased text, shows `?` for unknown characters, returns the advance in pixels. |
 | `text_width(text, *, font=FONT_5X7, spacing=6, scale=1)` | Pixel width of a string. |
 | `cut_corner_box(draw, box, fill, outline=None)` | Rectangle with its corner pixels cut off. |
@@ -53,6 +53,10 @@ print(meta[1])   # {'index': 1, 'name': 'B', 'col': 1, 'row': 0, 'x': 16, 'y': 0
 | `nearest_scale(image, factor)` | Whole-number nearest-neighbour upscale. |
 | `paste_cell(sheet, tile, col, row, cell_w, cell_h)` | Pastes a tile into the top-left of a grid cell. |
 | `build_sheet(tiles, cols, cell_w, cell_h, palette=None, *, fill=0, transparency=0, size=256)` | Packs tiles (images or `(name, image)` pairs) into a sheet and returns it with one metadata dict per tile. With a palette the sheet is indexed; without one it is RGBA. |
+
+## Changes in 0.2.0
+
+`FONT_5X7` now comes from the shared font source. Thirteen glyphs were added (`"`, `$`, `&`, `*`, `;`, `@`, `[`, `\`, `]`, `^`, a backtick, `|` and `~`) and four changed shape to the version two of the three hand-drawn tables agreed on: `D` has square corners, `J`'s hook is two rows tall, `6` has a three-pixel top and `9` a three-pixel bottom. Nothing was removed.
 
 ## Errors
 
