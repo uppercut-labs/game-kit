@@ -10,6 +10,7 @@ Small, focused packages from Uppercut Labs for making, porting, testing and capt
 | [`port-input-harness`](packages/port-input-harness) | C | Tests a game port's controller handling with SDL3 virtual controllers (DualSense, Xbox, Switch Pro, Steam Deck, generic pads and more as data files), with hot-plug, scripts, a pass/fail runner and an end-to-end runner |
 | [`uppercut-pixel-art-sheets`](packages/uppercut-pixel-art-sheets) | Python | Pillow helpers for indexed pixel-art sheets: palettes, pattern fills, a bitmap font and sheet packing |
 | [`uppercut-sound-effect-synth`](packages/uppercut-sound-effect-synth) | Python | Deterministic procedural sound effects: envelopes, filtered noise, sweeps, seeded variation and WAV output |
+| [`uppercut-gba-rom-verify`](packages/uppercut-gba-rom-verify) | Python | Checks a built Game Boy Advance ROM and its ELF before release: logo, title, game and maker codes, header complement, size and alignment, with a SHA-256 to pin |
 
 ## Installing
 
