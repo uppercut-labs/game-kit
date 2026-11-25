@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-bizhawk-driver"
+version = "0.1.0"
+description = "Drive BizHawk from Python: a pinned, checked install, a private config copy for each run, Lua table configs, a launch that stops only its own process, and a wait for the script's .done or .err file."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["bizhawk", "emuhawk", "emulator", "lua", "automation", "capture", "tas"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.scripts]
+uppercut-bizhawk-driver = "uppercut_bizhawk_driver.cli:main"
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-bizhawk-driver"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_bizhawk_driver"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
