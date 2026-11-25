@@ -1,5 +1,5 @@
 """The package against the three source copies. golden.json holds the SHA-256 of what each original
-script produced for the inputs in cases.py (make_goldens.py rebuilds it and refuses to write it if the
+script produced for the inputs in chiptune_cases.py (make_goldens.py rebuilds it and refuses to write it if the
 copies disagree where they should agree)."""
 
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import cases
+import chiptune_cases as cases
 
 GOLDEN = json.loads((Path(__file__).parent / "golden.json").read_text())
 RENDERED = cases.package_cases()

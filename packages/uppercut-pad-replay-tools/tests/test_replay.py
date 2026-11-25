@@ -1,6 +1,6 @@
 import pytest
 
-from cases import INVALID, PLAYBACK
+from replay_cases import INVALID, PLAYBACK
 from uppercut_pad_replay_tools import Event, Replay, ReplayError, parse_replay, read_replay
 
 

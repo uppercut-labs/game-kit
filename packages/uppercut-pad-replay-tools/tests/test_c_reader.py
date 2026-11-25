@@ -75,7 +75,7 @@ def test_a_built_replay_plays_the_same_in_both_readers(reader, tmp_path):
 
 
 def test_both_readers_refuse_the_same_files(reader, tmp_path):
-    from cases import INVALID
+    from replay_cases import INVALID
 
     for label, contents in INVALID:
         path = tmp_path / "bad.input"

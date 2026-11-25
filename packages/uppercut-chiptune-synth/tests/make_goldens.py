@@ -4,7 +4,7 @@
 
 The first two are the NumPy scripts (they need NumPy installed here, and only here); the third is the
 stdlib script. Each is loaded from the path given and its own functions are called on the synthetic
-inputs in cases.py. The run fails if the two NumPy copies disagree on a case, or if any case the copies
+inputs in chiptune_cases.py. The run fails if the two NumPy copies disagree on a case, or if any case the copies
 share (the write_wav ones) differs between the NumPy and stdlib scripts.
 """
 
@@ -14,7 +14,7 @@ import sys
 
 import numpy as np
 
-import cases
+import chiptune_cases as cases
 
 
 def load(name, path):
