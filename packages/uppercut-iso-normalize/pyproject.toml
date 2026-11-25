@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-iso-normalize"
+version = "0.1.0"
+description = "Make a PlayStation 2 disc image byte-reproducible: fixed dates, ISO 9660 version suffixes and a checked SYSTEM.CNF and ELF."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["ps2", "playstation-2", "iso9660", "disc-image", "reproducible-builds", "homebrew"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.scripts]
+uppercut-iso-normalize = "uppercut_iso_normalize.cli:main"
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-iso-normalize"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_iso_normalize"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
