@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-poly-meshes"
+version = "0.1.0"
+description = "Regular-polyhedron meshes (exact vertex sets, exact hull, icosphere) and C-array emitters for float and fixed-point console layouts. Standard library only."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["mesh", "polyhedron", "icosphere", "c-array", "homebrew", "fixed-point"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Topic :: Multimedia :: Graphics :: 3D Modeling",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-poly-meshes"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_poly_meshes"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
