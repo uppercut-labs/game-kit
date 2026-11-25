@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-iso9660"
+version = "0.1.0"
+description = "Read ISO 9660 disc images (2048-byte and raw 2352-byte sectors): walk directories, extract files with a SHA-256, and find a PlayStation 2 disc's SYSTEM.CNF and boot ELF."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["iso9660", "disc-image", "cd-rom", "ps2", "playstation-2", "system.cnf", "sha256"]
+dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment",
+  "Typing :: Typed",
+]
+
+[project.scripts]
+uppercut-iso9660 = "uppercut_iso9660.cli:main"
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-iso9660"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_iso9660"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
