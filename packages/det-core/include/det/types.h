@@ -1,4 +1,4 @@
-/* det-core: fixed-width types and a compile-time assert. Part of det-core 0.1.0 (MIT). */
+/* det-core: fixed-width types and a compile-time assert. Part of det-core 1.0.0 (MIT). */
 #ifndef DET_TYPES_H
 #define DET_TYPES_H
 
@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 /* The package version, also read by CMakeLists.txt. */
-#define DET_VERSION "0.1.0"
+#define DET_VERSION "1.0.0"
 
 /*
  * A C99 compile-time assert. `name` must be a valid identifier that is unique in its scope, because the assert

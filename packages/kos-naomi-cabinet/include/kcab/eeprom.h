@@ -1,12 +1,12 @@
 /* kos-naomi-cabinet: a game's settings block in a NAOMI cabinet's 128-byte EEPROM, written the way the BIOS expects it.
- * Part of kos-naomi-cabinet 0.1.0 (MIT). No platform headers: the EEPROM is two callbacks. */
+ * Part of kos-naomi-cabinet 1.0.0 (MIT). No platform headers: the EEPROM is two callbacks. */
 #ifndef KCAB_EEPROM_H
 #define KCAB_EEPROM_H
 
 #include <stddef.h>
 #include <stdint.h>
 
-#define KCAB_VERSION "0.1.0"
+#define KCAB_VERSION "1.0.0"
 
 #define KCAB_EEPROM_BYTES 128u
 #define KCAB_SYSTEM_BYTES 36u /* bytes 0..35: the BIOS system settings, two copies with their checksums. Never touched. */

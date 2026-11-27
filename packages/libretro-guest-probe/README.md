@@ -14,7 +14,7 @@ libretro-guest-probe --map start=0x0008 --map b=0x4000 \
 
 The game and the core are the caller's. Nothing here ships a core, a BIOS or game data, and the tests use a fake core with no emulation.
 
-Version 0.1.0. Written in C (C11) with CMake. MIT licence. It depends on [`pad-replay`](../pad-replay) for the replay format.
+Version 1.0.0. Written in C (C11) with CMake. MIT licence. It depends on [`pad-replay`](../pad-replay) for the replay format.
 
 ## What it does
 
@@ -38,7 +38,7 @@ This is a C library and tool, so it is not on a package index. A project takes i
 include(FetchContent)
 FetchContent_Declare(libretro_guest_probe
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        libretro-guest-probe@0.1.0
+  GIT_TAG        libretro-guest-probe@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/libretro-guest-probe)
 FetchContent_MakeAvailable(libretro_guest_probe)
@@ -50,7 +50,7 @@ target_link_libraries(my-tool PRIVATE lgp)          # the library; the command l
 
 | What | From | Pinned by |
 | --- | --- | --- |
-| `pad-replay` | this repository, from the checkout beside this folder when there is one, else at the tag `LGP_PAD_REPLAY_TAG` (default `pad-replay@0.1.0`) | the tag |
+| `pad-replay` | this repository, from the checkout beside this folder when there is one, else at the tag `LGP_PAD_REPLAY_TAG` (default `pad-replay@1.0.0`) | the tag |
 | `libretro.h` | the RetroArch repository, `libretro-common/include/libretro.h` at commit `39fd949a6d45586501251a94cf795c5bba974606` | its SHA-256, `469b0fbe2919ca9f5372b48a94ff8af51f70ee00c364798ec70670ecf6b7f9da`; a different file fails the configure |
 | SDL3 | the system or `-DCMAKE_PREFIX_PATH` (3.2 or later) | `find_package`; `-DLGP_REQUIRE_SDL=OFF` builds without it, and a core that wants OpenGL is then refused one |
 
@@ -112,7 +112,7 @@ Left to the caller, because they know a game: what the guest's memory means (the
 
 The tests need no display, no GPU and no libretro core. They cover the option table, the input bridge, the memory probe against a fake memory map, the command line, and the host end to end against a fake core (`tests/fake_core.c`, a few functions with no emulation) for scripted input, option answers, the not-started guard, the frame bound, a stop rule, expectations, recording, and a hardware-render request refused where no display exists.
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

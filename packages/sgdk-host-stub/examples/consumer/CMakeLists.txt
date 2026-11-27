@@ -11,7 +11,7 @@ project(my_genesis_game_tests LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(sgdk_host_stub
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        sgdk-host-stub@0.1.0
+  GIT_TAG        sgdk-host-stub@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/sgdk-host-stub)
 FetchContent_MakeAvailable(sgdk_host_stub)

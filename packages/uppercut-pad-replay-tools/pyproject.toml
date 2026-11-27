@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-pad-replay-tools"
-version = "0.1.0"
+version = "1.0.0"
 description = "Build and check controller replay files and capture scripts for game ports, and export a replay as a Dolphin DTM."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["game", "replay", "controller", "input", "testing", "capture", "dolphin", "dtm"]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",

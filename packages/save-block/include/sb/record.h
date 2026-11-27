@@ -1,11 +1,11 @@
-/* save-block: a checksummed, versioned record in two alternating slots. Part of save-block 0.1.0 (MIT). */
+/* save-block: a checksummed, versioned record in two alternating slots. Part of save-block 1.0.0 (MIT). */
 #ifndef SB_RECORD_H
 #define SB_RECORD_H
 
 #include <stddef.h>
 #include <stdint.h>
 
-#define SB_PACKAGE_VERSION "0.1.0"
+#define SB_PACKAGE_VERSION "1.0.0"
 
 /*
  * The biggest payload a format may have. It sizes the buffers on the stack (about 2 * (this + 16) bytes in a load,

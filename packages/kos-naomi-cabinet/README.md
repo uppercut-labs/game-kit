@@ -15,7 +15,7 @@ tested without one:
   that wants save-block's two alternating slots.
 
 The logic takes the EEPROM as two callbacks (`KcabEeprom`), so a host test uses the RAM chip in the package, with faults.
-Version 0.1.0. Written in C (C99) with CMake. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake. MIT licence.
 
 ## What is not in it
 
@@ -34,7 +34,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(kos_naomi_cabinet
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        kos-naomi-cabinet@0.1.0
+  GIT_TAG        kos-naomi-cabinet@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/kos-naomi-cabinet)
 FetchContent_MakeAvailable(kos_naomi_cabinet)
@@ -48,7 +48,7 @@ coins. For an offline build set `-DFETCHCONTENT_SOURCE_DIR_KOS_NAOMI_CABINET=<a 
 project gets the CMake variable `KCAB_VERSION`.
 
 **The adapter** (`kcab::save_block`) is built when a `save_block::save_block` target exists, or the `save-block` folder is
-next to this one (a checkout of game-kit has both), or `-DKCAB_SAVE_BLOCK=ON` makes CMake fetch it at `save-block@0.1.0`
+next to this one (a checkout of game-kit has both), or `-DKCAB_SAVE_BLOCK=ON` makes CMake fetch it at `save-block@1.0.0`
 (with `-DKCAB_SAVE_BLOCK=OFF` it is never looked for). The rest of the package needs nothing.
 
 ### On the console
@@ -174,7 +174,7 @@ to the store until its first save replaces it. A game that keeps more than 26 by
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

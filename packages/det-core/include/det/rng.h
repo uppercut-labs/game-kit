@@ -1,4 +1,4 @@
-/* det-core: xorshift32 random numbers. Part of det-core 0.1.0 (MIT). */
+/* det-core: xorshift32 random numbers. Part of det-core 1.0.0 (MIT). */
 #ifndef DET_RNG_H
 #define DET_RNG_H
 

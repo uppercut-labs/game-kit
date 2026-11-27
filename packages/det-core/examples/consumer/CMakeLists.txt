@@ -11,7 +11,7 @@ project(my_game_tests LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(det_core
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        det-core@0.1.0
+  GIT_TAG        det-core@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/det-core)
 FetchContent_MakeAvailable(det_core)

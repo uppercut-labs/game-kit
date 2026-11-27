@@ -14,7 +14,7 @@ a test replays it with no pad attached, and a builder script writes one by hand.
 Nothing in this package knows a console or a game. The button bits are the port's own: the package carries no header from
 any SDK, and a port that wants names for its bits gives a table. It has no dependencies beyond the C library.
 
-Version 0.1.0. Written in C (C11) with CMake. MIT licence. The format is in [docs/format.md](docs/format.md).
+Version 1.0.0. Written in C (C11) with CMake. MIT licence. The format is in [docs/format.md](docs/format.md).
 
 ## Install
 
@@ -25,7 +25,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(pad_replay
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        pad-replay@0.1.0
+  GIT_TAG        pad-replay@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/pad-replay)
 FetchContent_MakeAvailable(pad_replay)
@@ -99,7 +99,7 @@ The format came out of several ports that each carried their own reader. This pa
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

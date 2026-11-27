@@ -1,6 +1,6 @@
 {
   "name": "@uppercut-labs/cappy-adapter",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A typed client for Cappy's game adapter protocol v1: handshake, scenario registry, scenario, recording and replay operations, heartbeat and error codes, plus a child-process runner with an output ring and a clean shutdown.",
   "license": "MIT",
   "author": "Uppercut Labs <packages@uppercut-labs.com>",

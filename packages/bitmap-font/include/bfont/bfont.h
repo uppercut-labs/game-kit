@@ -11,7 +11,7 @@
 #ifndef BFONT_H
 #define BFONT_H
 
-#define BFONT_VERSION "0.1.0"
+#define BFONT_VERSION "1.0.0"
 
 #ifdef __cplusplus
 extern "C" {

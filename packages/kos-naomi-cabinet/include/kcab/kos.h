@@ -1,5 +1,5 @@
 /* The KallistiOS side of kos-naomi-cabinet: the MIE bridge's EEPROM, coin meters and switches behind the package's
- * types. Part of kos-naomi-cabinet 0.1.0 (MIT).
+ * types. Part of kos-naomi-cabinet 1.0.0 (MIT).
  *
  * Compile src/kos.c and src/kos_naomi_mode.c only with KallistiOS (the NAOMI subarchitecture; on another KOS target
  * kcab_kos_ready reports 0 and the rest do nothing). The rest of the package builds anywhere.

@@ -9,7 +9,7 @@ Nothing in this package knows a game. The port supplies its buttons as data (a *
 in the port's pad word and default bindings for each button), and everything a game decides stays in the game: what a
 button means, which screen is a menu, what a macro presses.
 
-Version 0.1.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
+Version 1.0.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
 
 ## Install
 
@@ -20,7 +20,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(port_sdl_input
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-sdl-input@0.1.0
+  GIT_TAG        port-sdl-input@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-sdl-input)
 FetchContent_MakeAvailable(port_sdl_input)
@@ -122,7 +122,7 @@ pad, a Switch Pro, a Steam Deck...) from data files and drives the port's adapte
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | SDL3 | Result |
 | --- | --- | --- | --- |

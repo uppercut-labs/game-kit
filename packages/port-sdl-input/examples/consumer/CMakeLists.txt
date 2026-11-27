@@ -12,12 +12,12 @@ project(my_port LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(port_settings
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-settings@0.1.0
+  GIT_TAG        port-settings@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-settings)
 FetchContent_Declare(port_sdl_input
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-sdl-input@0.1.0
+  GIT_TAG        port-sdl-input@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-sdl-input)
 FetchContent_MakeAvailable(port_settings port_sdl_input)

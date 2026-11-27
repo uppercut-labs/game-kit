@@ -1,4 +1,4 @@
-/* save-block: a two-slot storage in RAM with fault injection, for tests. Part of save-block 0.1.0 (MIT). */
+/* save-block: a two-slot storage in RAM with fault injection, for tests. Part of save-block 1.0.0 (MIT). */
 #include "sb/memory.h"
 
 #include <string.h>

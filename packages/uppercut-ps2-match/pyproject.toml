@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-ps2-match"
-version = "0.1.0"
+version = "1.0.0"
 description = "Tooling for a PlayStation 2 matching decompilation: compile one function at a time and check its bytes against the original, place data pieces, split C files, fetch a toolchain by SHA-256 pins, audit a public repo."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["ps2", "playstation-2", "decompilation", "matching", "mips", "r5900", "elf", "splat"]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",

@@ -11,7 +11,7 @@ project(my_port_settings LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(port_settings
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-settings@0.1.0
+  GIT_TAG        port-settings@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-settings)
 FetchContent_MakeAvailable(port_settings)

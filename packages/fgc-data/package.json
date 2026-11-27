@@ -1,6 +1,6 @@
 {
   "name": "@uppercut-labs/fgc-data",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Fighting-game rosters, gameplay summaries, a catalog of games with team-selection schemas, and the builder helpers that assemble them, as typed data with no dependencies.",
   "license": "MIT",
   "author": "Uppercut Labs <packages@uppercut-labs.com>",

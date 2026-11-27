@@ -1,6 +1,6 @@
 """Drive BizHawk from Python."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 from .config import (  # noqa: E402
     SOUND_KEYS, dump_config, edit_config_in_place, emuhawk_running, load_config, make_run_config, mute, parse_assignment, prefer_core,

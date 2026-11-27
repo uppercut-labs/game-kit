@@ -2,7 +2,7 @@
 
 Small bitmap fonts as tables, with a callback to draw them. Three fonts (5x7, 8x8, and 3x5 title letters) are written once, in `data/bitmap-fonts.txt`; a generator turns that file into the C header the library compiles, into a standalone C array a project can vendor, and into the Python table that `uppercut-pixel-art-sheets` uses. A glyph is drawn by calling a function of yours once per run of set pixels, so the same table works with a framebuffer, a sprite batch or a GPU quad.
 
-Nothing here allocates or depends on a graphics library. Version 0.1.0. Written in C99 with CMake; the generator is Python 3 (standard library only). MIT licence.
+Nothing here allocates or depends on a graphics library. Version 1.0.0. Written in C99 with CMake; the generator is Python 3 (standard library only). MIT licence.
 
 ## Install
 
@@ -12,7 +12,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(bitmap_font
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        bitmap-font@0.1.0
+  GIT_TAG        bitmap-font@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/bitmap-font)
 FetchContent_MakeAvailable(bitmap_font)
@@ -263,7 +263,7 @@ The 8x8 table is the 32X HUD's, unchanged: no other 8x8 table exists to compare 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

@@ -7,7 +7,7 @@
 #
 # It uses det-core for FNV-1a. That is found in this order: a det_core::det_core target the including project already
 # made (for example from its own FetchContent of det-core at a tag), the sibling folder ../det-core (a checkout of
-# game-kit, or a FetchContent clone of it, has one), then a FetchContent download of det-core@0.1.0 (a folder packed
+# game-kit, or a FetchContent clone of it, has one), then a FetchContent download of det-core@1.0.0 (a folder packed
 # on its own, which needs git and network; set FETCHCONTENT_SOURCE_DIR_DET_CORE for an offline build).
 #
 # Variables it gives the including project:
@@ -35,7 +35,7 @@ if(NOT TARGET det_core::det_core)
     include(FetchContent)
     FetchContent_Declare(det_core
       GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-      GIT_TAG        det-core@0.1.0
+      GIT_TAG        det-core@1.0.0
       GIT_SHALLOW    TRUE
       SOURCE_SUBDIR  packages/det-core)
     FetchContent_MakeAvailable(det_core)

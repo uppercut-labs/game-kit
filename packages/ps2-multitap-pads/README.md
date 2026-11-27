@@ -9,7 +9,7 @@ The poller is a state machine over a small table of functions (`MpadOps`). Nothi
 test drives the whole thing with a fake and no hardware. A short PS2SDK file fills the table with `libpad` and `libmtap`
 calls and is compiled only when you build for the console.
 
-Version 0.1.0. Written in C (C99) with CMake. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake. MIT licence.
 
 ## What is not in it
 
@@ -28,7 +28,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(ps2_multitap_pads
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        ps2-multitap-pads@0.1.0
+  GIT_TAG        ps2-multitap-pads@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/ps2-multitap-pads)
 FetchContent_MakeAvailable(ps2_multitap_pads)
@@ -164,7 +164,7 @@ build error and not a pad that reads wrong. It maps `PAD_STATE_EXECCMD` and any 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

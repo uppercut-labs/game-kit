@@ -8,7 +8,7 @@ that controller, and the port's input layer reads it through its real code path.
 Nothing in this package knows any game. A port brings an adapter (a small C file, a map file, optionally a small
 Python file) and gets the whole suite.
 
-Version 0.1.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
+Version 1.0.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
 
 ## Install
 
@@ -21,7 +21,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(port_input_harness
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-input-harness@0.1.0
+  GIT_TAG        port-input-harness@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-input-harness)
 FetchContent_MakeAvailable(port_input_harness)
@@ -95,7 +95,7 @@ CMakeLists.txt         library `pih`, tests `pih-selftest` and `pih-e2e-selftest
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 | `e2e/pih_e2e.py`, `selftest/e2e_selftest.py` | Windows, macOS, Linux; Python 3.8 or later, no packages | PowerShell or Bash: it only starts the port's own program |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | SDL3 | Result |
 | --- | --- | --- | --- |

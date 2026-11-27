@@ -10,7 +10,7 @@ Several GBA games kept writing the same helpers (put a tile, fill, a glyph table
 the sprites, set a sprite) with the same conventions: a 30 x 20 visible area on a 32 x 32 map, one glyph table, one
 fallback tile for a character the font lacks. This is one tested copy.
 
-Version 0.1.0. Written in C (C99) with CMake for the host build. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake for the host build. MIT licence.
 
 ## What is in it, and what is not
 
@@ -34,7 +34,7 @@ with CMake `FetchContent` (CMake 3.20 or later, git, and network at configure ti
 include(FetchContent)
 FetchContent_Declare(gba_tile_ui
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        gba-tile-ui@0.1.0
+  GIT_TAG        gba-tile-ui@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/gba-tile-ui)
 FetchContent_MakeAvailable(gba_tile_ui)
@@ -124,7 +124,7 @@ The three games' helpers differed in small ways; this package picks one behaviou
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |

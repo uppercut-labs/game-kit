@@ -1,4 +1,4 @@
-/* save-block: the checksummed two-slot record. Part of save-block 0.1.0 (MIT). */
+/* save-block: the checksummed two-slot record. Part of save-block 1.0.0 (MIT). */
 #include "sb/record.h"
 
 #include <string.h>

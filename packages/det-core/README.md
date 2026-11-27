@@ -7,7 +7,7 @@ network lockstep or a regression hash of a whole run be trusted.
 
 Nothing in this package knows any game, and it includes no platform headers: only `<stddef.h>` and `<stdint.h>`.
 
-Version 0.1.0. Header-only C (C99) with CMake. MIT licence.
+Version 1.0.0. Header-only C (C99) with CMake. MIT licence.
 
 ## Install
 
@@ -18,7 +18,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(det_core
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        det-core@0.1.0
+  GIT_TAG        det-core@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/det-core)
 FetchContent_MakeAvailable(det_core)
@@ -83,7 +83,7 @@ The generator is one `uint32_t` (`det_rng`), so it copies, compares and hashes l
 - `det_rng_chance(&rng, numerator, denominator)`: true with probability `numerator / denominator`. The edges (a
   zero side, or `numerator >= denominator`) do not advance the generator.
 
-The sequence for a seed is part of the package's contract: it will not change in a 0.x release, and the tests pin it.
+The sequence for a seed is part of the package's contract: it does not change within major version 1, and the tests pin it.
 A project that already has a generator with recorded replays should keep it, because switching would change them.
 
 ## Where the behaviour differs from the copies it was written from

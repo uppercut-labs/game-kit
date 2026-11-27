@@ -1,4 +1,4 @@
-/* save-block: an optional arcade profile: settings, a hiscore table and three-letter initials. Part of save-block 0.1.0 (MIT). */
+/* save-block: an optional arcade profile: settings, a hiscore table and three-letter initials. Part of save-block 1.0.0 (MIT). */
 #ifndef SB_ARCADE_H
 #define SB_ARCADE_H
 

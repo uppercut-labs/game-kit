@@ -11,7 +11,7 @@ project(my_bitmap_font LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(bitmap_font
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        bitmap-font@0.1.0
+  GIT_TAG        bitmap-font@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/bitmap-font)
 FetchContent_MakeAvailable(bitmap_font)

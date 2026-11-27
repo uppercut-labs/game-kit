@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#define LGP_VERSION "0.1.0"
+#define LGP_VERSION "1.0.0"
 #define LGP_MAX_PORTS 8u
 
 /* Exit codes of lgp_run() and of the command line. */
