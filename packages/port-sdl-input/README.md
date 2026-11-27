@@ -127,7 +127,8 @@ Tested at 1.0.0:
 | System | Toolchain | SDL3 | Result |
 | --- | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `build-and-test.sh` in Bash, dummy video; also under AddressSanitizer and UBSan | 3.4.20 (built from its release tag) | pass |
-| Windows 11, macOS | not run yet | | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, `tools\check-c.ps1` in PowerShell 7 | MSYS2 package | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, `tools/check-c.sh` | Homebrew | pass |
 
 The virtual joystick needs no display or driver, so the tests run in a headless container too. A real pad's HID reports,
 rumble motors and Bluetooth behaviour need real hardware.

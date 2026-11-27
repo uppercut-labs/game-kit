@@ -130,7 +130,8 @@ Tested at 1.0.0:
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu, in a container) | gcc, `-Wall -Wextra -pedantic`; the library test (the glue is compiled against a made-up `gba.h` in `tests/fake_gba`); the example consumer | pass |
 | devkitARM and libgba, real console | not run: no devkitARM was available. The glue has only been compiled against the test's fake `gba.h`; `dmaCopy`, `MAP_BASE_ADR` and `OAM` are used as libgba defines them | waits for a maintainer machine |
-| Windows, macOS | not run yet | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
 Build and run the test, from this folder:
 

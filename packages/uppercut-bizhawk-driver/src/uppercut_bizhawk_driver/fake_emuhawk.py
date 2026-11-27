@@ -34,6 +34,27 @@ def _lua_strings(text: str) -> "dict[str, str]":
     return found
 
 
+def _windows_startup() -> "dict[str, int] | None":
+    """On Windows, the `dwFlags` and `wShowWindow` of the STARTUPINFO this process was created with; None elsewhere."""
+    if os.name != "nt":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    class StartupInfo(ctypes.Structure):
+        _fields_ = [("cb", wintypes.DWORD), ("lpReserved", wintypes.LPWSTR), ("lpDesktop", wintypes.LPWSTR),
+                    ("lpTitle", wintypes.LPWSTR), ("dwX", wintypes.DWORD), ("dwY", wintypes.DWORD),
+                    ("dwXSize", wintypes.DWORD), ("dwYSize", wintypes.DWORD), ("dwXCountChars", wintypes.DWORD),
+                    ("dwYCountChars", wintypes.DWORD), ("dwFillAttribute", wintypes.DWORD), ("dwFlags", wintypes.DWORD),
+                    ("wShowWindow", wintypes.WORD), ("cbReserved2", wintypes.WORD), ("lpReserved2", ctypes.c_void_p),
+                    ("hStdInput", wintypes.HANDLE), ("hStdOutput", wintypes.HANDLE), ("hStdError", wintypes.HANDLE)]
+
+    info = StartupInfo()
+    info.cb = ctypes.sizeof(StartupInfo)
+    ctypes.windll.kernel32.GetStartupInfoW(ctypes.byref(info))  # type: ignore[attr-defined]
+    return {"dwFlags": info.dwFlags, "wShowWindow": info.wShowWindow}
+
+
 def main(argv: "list[str]") -> int:
     args = [a for a in argv if a.startswith("--")]
     rom = [a for a in argv if not a.startswith("--")][-1]
@@ -56,6 +77,7 @@ def main(argv: "list[str]") -> int:
         "config": json.loads(Path(config_arg).read_text(encoding="utf-8")) if config_arg and Path(config_arg).is_file() else None,
         "env_name": env_name,
         "table": table,
+        "startup": _windows_startup(),
     }
     if mode == "exit":
         return int(table.get("fake_code", 3))

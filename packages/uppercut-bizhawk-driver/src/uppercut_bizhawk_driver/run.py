@@ -297,7 +297,7 @@ def start_run(
         )
     else:
         warnings.append("no base config: BizHawk's own config is used, so sound and background running were not set")
-    cfg_table: Dict[str, Any] = {"out": str(out_path)}
+    cfg_table: Dict[str, Any] = {"out": out_path}  # a path: written with forward slashes, which BizHawk's Lua takes on Windows
     cfg_table.update(settings or {})
     cfg_lua = write_lua_config(Path(f"{out_path}.cfg.lua"), cfg_table)
     argv = build_command(launcher, rom_path, lua=Path(lua).resolve(), config=config, chromeless=chromeless, extra=extra_args)

@@ -1,4 +1,5 @@
 /* The memory probe: named values at guest addresses, a guest tick, stop rules and expectations. */
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -151,8 +152,9 @@ static int parse_number(const char *text, size_t length, uint32_t *value)
     if (buf[0] == '-' || buf[0] == '+' || buf[0] == ' ') {
         return 0;
     }
+    errno = 0; /* unsigned long is 32 bits on Windows: an overflow there reads as ULONG_MAX with ERANGE */
     v = strtoul(buf, &end, 0);
-    if (*end || v > 0xfffffffful) {
+    if (*end || errno == ERANGE || v > 0xfffffffful) {
         return 0;
     }
     *value = (uint32_t)v;

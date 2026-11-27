@@ -97,10 +97,17 @@ uppercut-bizhawk-driver lua settings.json            # prints the Lua file a scr
 
 ## What runs where
 
-The run tests start a stand-in program (a shell script that starts `fake_emuhawk`), so they run on Linux and macOS; they are skipped
-on Windows. They need no BizHawk, no ROM beyond a few made-up bytes, no display and no network. The Windows start-up (`STARTUPINFO`
-with `SW_SHOWNOACTIVATE`) and a real BizHawk have not been run: the first run on a maintainer machine should check that
-`<prefix>.done` appears and that nothing took focus.
+The run tests start a stand-in program: a shell script that starts `fake_emuhawk` on Linux and macOS, and the Python interpreter run
+on `fake_emuhawk.py` on Windows. They need no BizHawk, no ROM beyond a few made-up bytes, no display and no network.
+
+Tested at 1.0.0: `uv run pytest` passes on macOS 27.0 (Apple M6, Python 3.13.18; 57 tests) and on Windows 11 Pro (10.0.26300,
+Python 3.14.0; 56 passed, 1 skipped). The skipped test is the SIGTERM one: Windows stops a process with `TerminateProcess`, which
+cannot be ignored. On Windows the run tests start the stand-in with the driver's real `STARTUPINFO`, and the stand-in reads it
+back with `GetStartupInfoW`: `STARTF_USESHOWWINDOW` is set and `wShowWindow` is 4 (`SW_SHOWNOACTIVATE`). The Windows run found two
+faults, both fixed: `out` in `<prefix>.cfg.lua` was written with backslashes where the rest of the file uses forward slashes, and
+one test compared a path with `/` separators.
+
+The tests use the stand-in in place of `EmuHawk.exe`, so they run without BizHawk installed.
 
 ```sh
 uv sync --all-packages && uv run pytest

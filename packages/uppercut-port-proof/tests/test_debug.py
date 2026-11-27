@@ -1,3 +1,4 @@
+import os
 import socket
 
 import pytest
@@ -86,7 +87,7 @@ def test_run_presses_presses_holds_releases_and_takes_screenshots(tmp_path):
     presses = [r for r in server.requests if r["cmd"] == "press"]
     assert [(p["buttons"], p["frames"]) for p in presses] == [(0xFFF7, 2), (0xFFFF & ~(1 << 14) & ~(1 << 4), 3)]
     shots = [r for r in server.requests if r["cmd"] == "screenshot"]
-    assert [r["path"].rsplit("/", 1)[-1] for r in shots] == ["shot_000050.png", "shot_000100.png"]
+    assert [os.path.basename(r["path"]) for r in shots] == ["shot_000050.png", "shot_000100.png"]
     assert (tmp_path / "shots").is_dir()
     # a press is released before the next one starts
     assert cmds.index("clear_input") < cmds.index("press", cmds.index("press") + 1)

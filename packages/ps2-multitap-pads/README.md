@@ -169,7 +169,8 @@ Tested at 1.0.0:
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18 with `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (poller 293 checks, glue 23) |
-| Windows 11, macOS | not run yet | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 | PS2SDK build, console, emulator | not run: no PS2SDK in the test container | waits for a PS2SDK machine |
 
 The glue test uses stand-in headers whose numbers come from the public PS2SDK `libpad.h`. It proves the glue's own mapping

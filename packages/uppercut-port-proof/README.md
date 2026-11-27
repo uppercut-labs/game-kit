@@ -130,8 +130,11 @@ Other packages in this repository, or in py-kit, already do these; use them rath
 ## What runs where
 
 Everything runs on Linux, macOS and Windows with Python 3.10 or newer, with no display and no hardware. The tests start a fake
-debug server on a local port (127.0.0.1, any free port) and write files under a temporary folder. They have not been run on
-Windows or macOS.
+debug server on a local port (127.0.0.1, any free port) and write files under a temporary folder.
+
+Tested at 1.0.0: `uv run pytest` passes (70 tests) on Windows 11 Pro (10.0.26300, Python 3.14.0) and on macOS 27.0
+(Apple M6, Python 3.13.18). The Windows run found one test that split a screenshot path on `/` and failed on `\`; the test now uses
+`os.path.basename`.
 
 ```sh
 uv sync --all-packages && uv run pytest

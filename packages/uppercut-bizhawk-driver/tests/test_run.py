@@ -13,7 +13,7 @@ from uppercut_bizhawk_driver import (
     RunError, RunTimeout, build_command, run_capture, start_run, wait_for_done, write_evidence,
 )
 
-posix_only = pytest.mark.skipif(os.name == "nt", reason="the fake launcher is a POSIX shell script")
+posix_only = pytest.mark.skipif(os.name == "nt", reason="Windows stops a process with TerminateProcess, which cannot be ignored")
 
 
 @pytest.fixture
@@ -31,24 +31,28 @@ def test_build_command_orders_the_arguments():
     assert build_command("/x/EmuHawk.exe", "g.gb", lua="s.lua") == ["/x/EmuHawk.exe", "--lua=s.lua", "g.gb"]
     assert build_command("/x/EmuHawkMono.sh", "g.gb", lua="s.lua") == ["/x/EmuHawkMono.sh", "--gdi", "--lua=s.lua", "g.gb"]
     assert build_command(Path("/x/EmuHawk.exe"), "g.gb", lua="s.lua", config="c.ini", chromeless=True, extra=("--fullscreen",)) == [
-        "/x/EmuHawk.exe", "--config=c.ini", "--lua=s.lua", "--chromeless", "--fullscreen", "g.gb"]
+        str(Path("/x/EmuHawk.exe")), "--config=c.ini", "--lua=s.lua", "--chromeless", "--fullscreen", "g.gb"]
     assert build_command(["py", "-m", "fake"], "g.gb") == ["py", "-m", "fake", "g.gb"]
     assert build_command(["wine", "/x/EmuHawk.exe"], "g.gb", config="c.ini") == ["wine", "/x/EmuHawk.exe", "--config=c.ini", "g.gb"]
     with pytest.raises(ValueError):
         build_command([], "g.gb")
 
 
-@posix_only
 def test_a_run_reaches_done_and_leaves_evidence(setup):
     launcher, rom, lua, config, out = setup
     result = run_capture(
         launcher, rom, out, lua=lua, base_config=config, cores={"SNES": "BSNESv115+"}, keep_config=True,
         settings={"frames": 600, "layers": {"obj": False}, "fake_noise": 3}, exit_grace=10)
     assert result.finished and not result.stopped and result.returncode == 0
-    assert result.argv[1:4] == ["--gdi", f"--config={out}.bizhawk.ini", f"--lua={lua.resolve()}"] and result.argv[-1] == str(rom.resolve())
-    assert result.muted and result.background and result.warnings == []
+    assert result.argv[-3:] == [f"--config={out}.bizhawk.ini", f"--lua={lua.resolve()}", str(rom.resolve())]
+    assert ("--gdi" in result.argv) == (os.name != "nt"), "--gdi follows EmuHawkMono.sh only"
+    assert result.muted and result.background
+    assert len(result.warnings) == (1 if os.name == "nt" else 0)  # Windows: the note that a window may still take focus
+    assert all("shown without activation" in w for w in result.warnings)
     seen = json.loads(Path(f"{out}.argv.json").read_text())
     assert seen["config"]["SoundEnabled"] is False and seen["config"]["RunInBackground"] is True
+    if os.name == "nt":  # the start-up the driver asked for: the window is shown without activation (SW_SHOWNOACTIVATE)
+        assert seen["startup"]["dwFlags"] & 0x1 and seen["startup"]["wShowWindow"] == 4
     assert seen["config"]["PreferredCores"]["SNES"] == "BSNESv115+" and seen["config"]["Unrelated"] == {"Keep": [1, 2, 3]}
     table = read_lua(Path(f"{out}.cfg.lua").read_text())
     assert table["frames"] == 600 and table["layers"] == {"obj": False} and table["out"] == str(out).replace("\\", "/")
@@ -59,14 +63,12 @@ def test_a_run_reaches_done_and_leaves_evidence(setup):
     assert evidence["rom_sha256"] == result.rom_sha256 and evidence["pid"] == result.pid and evidence["finished"] is True
 
 
-@posix_only
 def test_the_config_copy_is_removed_unless_kept(setup):
     launcher, rom, lua, config, out = setup
     run_capture(launcher, rom, out, lua=lua, base_config=config, exit_grace=10)
     assert not Path(f"{out}.bizhawk.ini").exists()
 
 
-@posix_only
 def test_without_a_base_config_the_run_says_what_it_could_not_set(setup):
     launcher, rom, lua, config, out = setup
     result = run_capture(launcher, rom, out, lua=lua, exit_grace=10)
@@ -75,7 +77,6 @@ def test_without_a_base_config_the_run_says_what_it_could_not_set(setup):
     assert "--config" not in " ".join(result.argv)
 
 
-@posix_only
 def test_the_script_failing_is_a_run_error_with_its_text(setup):
     launcher, rom, lua, config, out = setup
     with pytest.raises(RunError, match="boom") as caught:
@@ -83,7 +84,6 @@ def test_the_script_failing_is_a_run_error_with_its_text(setup):
     assert "script error: boom" in caught.value.error_text
 
 
-@posix_only
 def test_an_exit_before_done_is_a_run_error_with_the_code_and_the_output(setup):
     launcher, rom, lua, config, out = setup
     with pytest.raises(RunError, match=r"exited with code 7 before the script wrote pass1.done") as caught:
@@ -91,7 +91,6 @@ def test_an_exit_before_done_is_a_run_error_with_the_code_and_the_output(setup):
     assert caught.value.returncode == 7 and "fake EmuHawk starting" in str(caught.value)
 
 
-@posix_only
 def test_a_hung_run_times_out_and_is_stopped(setup):
     launcher, rom, lua, config, out = setup
     run = start_run(launcher, rom, out, lua=lua, settings={"fake_mode": "hang"})
@@ -101,8 +100,9 @@ def test_a_hung_run_times_out_and_is_stopped(setup):
         run.wait(timeout=0.5, poll=0.05)
     assert time.monotonic() - start < 8
     assert run.process.poll() is not None
-    with pytest.raises(ProcessLookupError):
-        os.kill(pid, 0)
+    if os.name != "nt":  # on Windows os.kill ends the process it is given, so the exit status above is the check
+        with pytest.raises(ProcessLookupError):
+            os.kill(pid, 0)
 
 
 @posix_only
@@ -115,7 +115,6 @@ def test_a_process_that_ignores_sigterm_is_killed_after_the_grace(setup):
     assert code == -signal.SIGKILL and time.monotonic() - started < 5
 
 
-@posix_only
 def test_only_the_launched_process_is_stopped(setup):
     launcher, rom, lua, config, out = setup
     bystander = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
@@ -128,21 +127,18 @@ def test_only_the_launched_process_is_stopped(setup):
         bystander.wait()
 
 
-@posix_only
 def test_after_done_a_process_that_will_not_exit_is_stopped(setup):
     launcher, rom, lua, config, out = setup
     result = run_capture(launcher, rom, out, lua=lua, settings={"fake_mode": "done_hang"}, exit_grace=0.3)
     assert result.finished and result.stopped and result.returncode != 0
 
 
-@posix_only
 def test_a_rom_that_changes_during_the_run_is_an_error(setup):
     launcher, rom, lua, config, out = setup
     with pytest.raises(RunError, match="changed while the emulator ran"):
         run_capture(launcher, rom, out, lua=lua, settings={"fake_mode": "edit_rom"}, exit_grace=5)
 
 
-@posix_only
 def test_files_from_an_earlier_run_are_not_silently_reused(setup):
     launcher, rom, lua, config, out = setup
     run_capture(launcher, rom, out, lua=lua, exit_grace=10)
@@ -165,7 +161,6 @@ def test_start_run_refuses_a_missing_rom_and_makes_nothing(tmp_path):
     assert not (tmp_path / "caps").exists()
 
 
-@posix_only
 def test_the_environment_names_the_config_and_can_be_changed(setup, monkeypatch):
     launcher, rom, lua, config, out = setup
     monkeypatch.setenv("MY_CFG_ENV", "x")
