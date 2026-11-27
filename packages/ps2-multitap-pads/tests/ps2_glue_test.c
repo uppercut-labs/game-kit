@@ -203,8 +203,10 @@ static void test_mapping(void)
     sdk_status[1][2].rjoy_h = 200;
     sdk_status[1][2].rjoy_v = 201;
     mpad_poll(&poller, s);
-    CHECK(s[6].status == MPAD_FRESH && s[6].held == (MPAD_CROSS | MPAD_L2) && s[6].lx == 12 && s[6].ly == 34,
-          "sample mapped: status %u held %04x sticks %u,%u (left stick, not right)", s[6].status, s[6].held, s[6].lx, s[6].ly);
+    CHECK(s[6].status == MPAD_FRESH && s[6].held == (MPAD_CROSS | MPAD_L2) && s[6].lx == 12 && s[6].ly == 34 &&
+              s[6].rx == 200 && s[6].ry == 201,
+          "sample mapped: status %u held %04x sticks %u,%u %u,%u", s[6].status, s[6].held, s[6].lx, s[6].ly, s[6].rx,
+          s[6].ry);
     CHECK(s[0].status == MPAD_ABSENT && s[5].status == MPAD_ABSENT, "the others are absent");
 
     sdk_state[1][2] = PAD_STATE_EXECCMD;

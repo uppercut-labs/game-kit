@@ -30,6 +30,8 @@ static uint8_t read_pad(void *c, uint8_t port, uint8_t slot, MpadRaw *out)
     out->buttons = (uint16_t)~(MPAD_CROSS | MPAD_START); /* active low, as the hardware reports */
     out->lx = 200;
     out->ly = 128;
+    out->rx = 128;
+    out->ry = 128;
     return 8;
 }
 static int mode_count(void *c, uint8_t port, uint8_t slot) { (void)c; (void)port; (void)slot; return 0; }

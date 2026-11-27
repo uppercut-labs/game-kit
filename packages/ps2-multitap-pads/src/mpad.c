@@ -9,6 +9,8 @@ MpadSample mpad_neutral(uint8_t status)
     s.held = 0;
     s.lx = MPAD_AXIS_CENTER;
     s.ly = MPAD_AXIS_CENTER;
+    s.rx = MPAD_AXIS_CENTER;
+    s.ry = MPAD_AXIS_CENTER;
     s.status = status;
     return s;
 }
@@ -99,6 +101,7 @@ static MpadSample read_endpoint(MpadPoller *p, uint8_t endpoint)
     }
 
     memset(&raw, 0, sizeof(raw));
+    raw.lx = raw.ly = raw.rx = raw.ry = MPAD_AXIS_CENTER;
     bytes = p->ops.pad_read(p->ops.context, port, slot, &raw);
     if (bytes < 4 || raw.ok != 0) {
         return mpad_neutral(missing);
@@ -120,6 +123,8 @@ static MpadSample read_endpoint(MpadPoller *p, uint8_t endpoint)
     if (bytes >= 8 && (type == MPAD_TYPE_ANALOG || type == MPAD_TYPE_DUALSHOCK)) {
         sample.lx = raw.lx;
         sample.ly = raw.ly;
+        sample.rx = raw.rx;
+        sample.ry = raw.ry;
     }
     return sample;
 }

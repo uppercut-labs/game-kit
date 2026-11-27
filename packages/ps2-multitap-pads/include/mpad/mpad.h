@@ -54,8 +54,10 @@ enum {
 
 typedef struct MpadSample {
     uint16_t held;
-    uint8_t lx; /* left stick, 0..255, centre 128; centred unless the pad is analog */
+    uint8_t lx; /* left and right sticks, 0..255, centre 128; centred unless the pad is analog */
     uint8_t ly;
+    uint8_t rx;
+    uint8_t ry;
     uint8_t status; /* MPAD_ABSENT, MPAD_FRESH or MPAD_UNREADABLE */
 } MpadSample;
 
@@ -79,6 +81,8 @@ typedef struct MpadRaw {
     uint16_t buttons;
     uint8_t lx;
     uint8_t ly;
+    uint8_t rx;
+    uint8_t ry;
 } MpadRaw;
 
 /*

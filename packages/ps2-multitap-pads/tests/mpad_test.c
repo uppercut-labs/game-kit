@@ -120,7 +120,7 @@ static void fake_reset(Fake *f)
         f->open_result[e] = 1;
         f->state[e] = MPAD_STATE_DISCONNECTED;
         f->raw[e].buttons = 0xffff; /* nothing pressed: the hardware reports pressed as 0 */
-        f->raw[e].lx = f->raw[e].ly = 128;
+        f->raw[e].lx = f->raw[e].ly = f->raw[e].rx = f->raw[e].ry = 128;
         f->set_result[e] = 1;
     }
 }
@@ -201,8 +201,8 @@ static void test_init(void)
 
 static void check_neutral(MpadSample s, uint8_t status, const char *what)
 {
-    CHECK(s.held == 0 && s.lx == 128 && s.ly == 128 && s.status == status, "%s: held %04x sticks %u,%u status %u", what,
-          s.held, s.lx, s.ly, s.status);
+    CHECK(s.held == 0 && s.lx == 128 && s.ly == 128 && s.rx == 128 && s.ry == 128 && s.status == status,
+          "%s: held %04x sticks %u,%u %u,%u status %u", what, s.held, s.lx, s.ly, s.rx, s.ry, s.status);
 }
 
 static void test_absent_and_fresh(void)
@@ -216,25 +216,37 @@ static void test_absent_and_fresh(void)
 
     /* a digital pad: buttons only, sticks stay centred even if the bytes say otherwise */
     plug(&f, 0, MPAD_TYPE_DIGITAL, MPAD_CROSS | MPAD_START, 4, 17, 99);
+    f.raw[0].rx = 211;
+    f.raw[0].ry = 42;
     f.set_result[0] = 1;
     f.mode_n[0] = 0; /* no DualShock mode in its table: no request, a fresh read */
     s = one(0);
-    CHECK(s.status == MPAD_FRESH && s.held == (MPAD_CROSS | MPAD_START) && s.lx == 128 && s.ly == 128,
-          "digital pad: status %u held %04x sticks %u,%u", s.status, s.held, s.lx, s.ly);
+    CHECK(s.status == MPAD_FRESH && s.held == (MPAD_CROSS | MPAD_START) && s.lx == 128 && s.ly == 128 &&
+              s.rx == 128 && s.ry == 128,
+          "digital pad: status %u held %04x sticks %u,%u %u,%u", s.status, s.held, s.lx, s.ly, s.rx, s.ry);
     CHECK(f.set_calls[0] == 0, "a digital pad with no analog mode is not asked to change");
 
     /* an analog pad with a full sample: sticks are real */
     plug(&f, 1, MPAD_TYPE_DUALSHOCK, MPAD_L1 | MPAD_SQUARE | MPAD_SELECT, 8, 0, 255);
+    f.raw[1].rx = 200;
+    f.raw[1].ry = 12;
     s = one(1);
-    CHECK(s.status == MPAD_FRESH && s.held == (MPAD_L1 | MPAD_SQUARE | MPAD_SELECT) && s.lx == 0 && s.ly == 255,
-          "dualshock: status %u held %04x sticks %u,%u", s.status, s.held, s.lx, s.ly);
+    CHECK(s.status == MPAD_FRESH && s.held == (MPAD_L1 | MPAD_SQUARE | MPAD_SELECT) && s.lx == 0 && s.ly == 255 &&
+              s.rx == 200 && s.ry == 12,
+          "dualshock: status %u held %04x sticks %u,%u %u,%u", s.status, s.held, s.lx, s.ly, s.rx, s.ry);
     plug(&f, 2, MPAD_TYPE_ANALOG, MPAD_R2, 8, 40, 200);
+    f.raw[2].rx = 15;
+    f.raw[2].ry = 240;
     s = one(2);
-    CHECK(s.status == MPAD_FRESH && s.lx == 40 && s.ly == 200, "analog type reads its stick");
+    CHECK(s.status == MPAD_FRESH && s.lx == 40 && s.ly == 200 && s.rx == 15 && s.ry == 240,
+          "analog type reads both sticks");
     /* an analog type with a short sample has no stick bytes */
     plug(&f, 3, MPAD_TYPE_DUALSHOCK, MPAD_UP, 4, 40, 200);
+    f.raw[3].rx = 15;
+    f.raw[3].ry = 240;
     s = one(3);
-    CHECK(s.status == MPAD_FRESH && s.held == MPAD_UP && s.lx == 128 && s.ly == 128, "a short analog sample keeps the stick centred");
+    CHECK(s.status == MPAD_FRESH && s.held == MPAD_UP && s.lx == 128 && s.ly == 128 && s.rx == 128 && s.ry == 128,
+          "a short analog sample keeps both sticks centred");
 
     /* every button bit lands where the header says */
     plug(&f, 4, MPAD_TYPE_DIGITAL, 0xffff, 4, 128, 128);
@@ -466,7 +478,8 @@ static void test_misc(void)
     MpadSample all[MPAD_ENDPOINTS];
     int e;
 
-    CHECK(n.held == 0 && n.lx == 128 && n.ly == 128 && n.status == MPAD_UNREADABLE, "mpad_neutral");
+    CHECK(n.held == 0 && n.lx == 128 && n.ly == 128 && n.rx == 128 && n.ry == 128 && n.status == MPAD_UNREADABLE,
+          "mpad_neutral");
     mpad_poll(NULL, all);
     for (e = 0; e < MPAD_ENDPOINTS; e++) {
         CHECK(all[e].status == MPAD_ABSENT, "polling no poller gives absent");

@@ -61,6 +61,8 @@ static uint8_t g_pad_read(void *context, uint8_t port, uint8_t slot, MpadRaw *ou
     out->buttons = status.btns;
     out->lx = status.ljoy_h;
     out->ly = status.ljoy_v;
+    out->rx = status.rjoy_h;
+    out->ry = status.rjoy_v;
     return bytes;
 }
 

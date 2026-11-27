@@ -17,7 +17,7 @@ Version 0.1.0. Written in C (C99) with CMake. MIT licence.
   PS2SDK. The glue takes them as buffers you give it; usually they are the `.irx` files from the SDK turned into C arrays
   by `bin2c`. `mpad/ps2.h` declares the symbols `bin2c` produces for them, and the program defines them.
 - **No IOP reset, no SIF setup, no loader patch.** See "Who owns the IOP reset" below.
-- No game mapping: it gives buttons and a left stick. What a button does is the game's.
+- No game mapping: it gives buttons and both analog sticks. What a button does is the game's.
 
 ## Install
 
@@ -111,13 +111,13 @@ if (p.status == MPAD_FRESH && (p.held & MPAD_CROSS)) { /* ... */ }
 | `mpad_is_open(poller, endpoint)` | Whether an endpoint opened. |
 | `mpad_neutral(status)` | A sample with no buttons and centred sticks. |
 
-A sample is `{ held, lx, ly, status }`. `held` is one bit per pressed button (`MPAD_CROSS`, `MPAD_START` and the rest;
-the hardware reports them the other way round and the poller turns them over). The stick is the left stick, `0..255` with
-128 in the middle, and stays at 128 for a digital pad. `status` is:
+A sample is `{ held, lx, ly, rx, ry, status }`. `held` is one bit per pressed button (`MPAD_CROSS`, `MPAD_START` and the rest;
+the hardware reports them the other way round and the poller turns them over). The sticks are `0..255` with
+128 in the middle, and stay at 128 for a digital pad. `status` is:
 
 | Status | Means |
 | --- | --- |
-| `MPAD_FRESH` | A pad was read this frame; `held` and the stick are real. |
+| `MPAD_FRESH` | A pad was read this frame; `held` and the sticks are real. |
 | `MPAD_UNREADABLE` | A pad is there (it read before, and has not been missing for the whole grace) but gave no sample this frame: it is being found again, the driver is busy, the read was bad, or a digital pad was just asked to become a DualShock. Treat it as "no input yet", not as "unplugged". |
 | `MPAD_ABSENT` | Nothing there, never opened, unplugged for certain, or missing longer than the grace. |
 
