@@ -127,10 +127,23 @@ def test_unknown_result_byte_is_a_protocol_error(server):
 
 
 def test_a_silent_server_times_out():
+    # A server that accepts every connection and never answers. Accepting matters: a connection left in the
+    # backlog and then closed by the client is reset by macOS on the next connect, which is not silence.
     listener = socket.socket()
     listener.bind(("127.0.0.1", 0))
-    listener.listen(1)
+    listener.listen(4)
     port = listener.getsockname()[1]
+    held = []
+
+    def accept_and_hold():
+        while True:
+            try:
+                connection, _ = listener.accept()
+            except OSError:
+                return
+            held.append(connection)
+
+    threading.Thread(target=accept_and_hold, daemon=True).start()
     try:
         client = PineClient.tcp(port=port, timeout=0.2)
         started = time.monotonic()
@@ -141,6 +154,8 @@ def test_a_silent_server_times_out():
             client.status()
     finally:
         listener.close()
+        for connection in held:
+            connection.close()
 
 
 def test_a_reply_split_across_packets_is_reassembled(server):
