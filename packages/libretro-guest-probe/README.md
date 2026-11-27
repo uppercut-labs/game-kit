@@ -106,9 +106,9 @@ Left to the caller, because they know a game: what the guest's memory means (the
 
 | Part | Runs on | In |
 | --- | --- | --- |
-| the library, the tool and its tests (C, CMake) | macOS, Linux; CMake 3.20+, Ninja, a C compiler, SDL3 (or `-DLGP_REQUIRE_SDL=OFF`) | any shell |
+| the library, the tool and its tests (C, CMake) | Windows, macOS, Linux; CMake 3.20+, Ninja, a C compiler, SDL3 (or `-DLGP_REQUIRE_SDL=OFF`) | any shell |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
-| `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 (the Windows library calls are written but were not compiled when this was released) |
+| `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 
 The tests need no display, no GPU and no libretro core. They cover the option table, the input bridge, the memory probe against a fake memory map, the command line, and the host end to end against a fake core (`tests/fake_core.c`, a few functions with no emulation) for scripted input, option answers, the not-started guard, the frame bound, a stop rule, expectations, recording, and a hardware-render request refused where no display exists.
 
