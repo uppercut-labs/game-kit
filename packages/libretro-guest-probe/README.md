@@ -106,9 +106,9 @@ Left to the caller, because they know a game: what the guest's memory means (the
 
 | Part | Runs on | In |
 | --- | --- | --- |
-| the library, the tool and its tests (C, CMake) | macOS, Linux; CMake 3.20+, Ninja, a C compiler, SDL3 (or `-DLGP_REQUIRE_SDL=OFF`) | any shell |
+| the library, the tool and its tests (C, CMake) | Windows, macOS, Linux; CMake 3.20+, Ninja, a C compiler, SDL3 (or `-DLGP_REQUIRE_SDL=OFF`) | any shell |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
-| `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 (the Windows library calls are written but were not compiled when this was released) |
+| `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 
 The tests need no display, no GPU and no libretro core. They cover the option table, the input bridge, the memory probe against a fake memory map, the command line, and the host end to end against a fake core (`tests/fake_core.c`, a few functions with no emulation) for scripted input, option answers, the not-started guard, the frame bound, a stop rule, expectations, recording, and a hardware-render request refused where no display exists.
 
@@ -117,8 +117,8 @@ Tested at 1.0.0:
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container, no GPU) | gcc 13, SDL3 3.4, `check-c.sh`; also built with `-DLGP_REQUIRE_SDL=OFF`, and under AddressSanitizer and UBSan | pass |
-| a real core (PPSSPP, Flycast) with a game | not run: no core, no game and no GPU where this was written | waits for a maintainer machine |
-| the hidden OpenGL window and context | not run: the container has no GPU and its SDL3 had no OpenGL window system; only the refusal path ran | waits for a maintainer machine |
+| a real core (PPSSPP, Flycast) with a game | the tests drive the host with a fake core (`tests/fake_core.c`). A project supplies its own core and its own game and points the tool at them; the package carries neither | scope of the tests: the host, input, options and memory probe against a fake core |
+| the hidden OpenGL window and context | the tests run the refusal path: with no display and no GPU a core's request for OpenGL is answered no and the log says why. The context is made on a machine whose SDL3 has an OpenGL window system and a GPU | refusal path passes |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, SDL3 from MSYS2, `tools\check-c.ps1` in PowerShell 7 | pass. This run found that an address over 32 bits was accepted on Windows, where `unsigned long` is 32 bits; it is now refused there too |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
