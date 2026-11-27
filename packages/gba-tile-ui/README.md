@@ -10,7 +10,7 @@ Several GBA games kept writing the same helpers (put a tile, fill, a glyph table
 the sprites, set a sprite) with the same conventions: a 30 x 20 visible area on a 32 x 32 map, one glyph table, one
 fallback tile for a character the font lacks. This is one tested copy.
 
-Version 0.1.0. Written in C (C99) with CMake for the host build. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake for the host build. MIT licence.
 
 ## What is in it, and what is not
 
@@ -34,7 +34,7 @@ with CMake `FetchContent` (CMake 3.20 or later, git, and network at configure ti
 include(FetchContent)
 FetchContent_Declare(gba_tile_ui
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        gba-tile-ui@0.1.0
+  GIT_TAG        gba-tile-ui@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/gba-tile-ui)
 FetchContent_MakeAvailable(gba_tile_ui)
@@ -124,13 +124,14 @@ The three games' helpers differed in small ways; this package picks one behaviou
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu, in a container) | gcc, `-Wall -Wextra -pedantic`; the library test (the glue is compiled against a made-up `gba.h` in `tests/fake_gba`); the example consumer | pass |
 | devkitARM and libgba, real console | not run: no devkitARM was available. The glue has only been compiled against the test's fake `gba.h`; `dmaCopy`, `MAP_BASE_ADR` and `OAM` are used as libgba defines them | waits for a maintainer machine |
-| Windows, macOS | not run yet | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
 Build and run the test, from this folder:
 

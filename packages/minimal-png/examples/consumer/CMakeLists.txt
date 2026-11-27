@@ -11,7 +11,7 @@ project(my_png_dump LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(minimal_png
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        minimal-png@0.1.0
+  GIT_TAG        minimal-png@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/minimal-png)
 FetchContent_MakeAvailable(minimal_png)

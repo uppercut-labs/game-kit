@@ -39,7 +39,7 @@
 #include "psi/layout.h"
 #include "psi/pad.h"
 
-#define PSI_VERSION "0.1.0"
+#define PSI_VERSION "1.0.0"
 
 #ifdef __cplusplus
 extern "C" {

@@ -39,4 +39,4 @@ __all__ = [
     "read_replay",
     "replay_to_dtm",
 ]
-__version__ = "0.1.0"
+__version__ = "1.0.0"

@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define GTU_VERSION "0.1.0"
+#define GTU_VERSION "1.0.0"
 
 #define GTU_MAP_COLUMNS 32
 #define GTU_MAP_ROWS 32

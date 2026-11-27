@@ -20,7 +20,7 @@
 #include <SDL3/SDL.h>
 
 /* The version of this library. CMakeLists.txt reads it from here (PIH_VERSION); a release tag is port-input-harness@<this>. */
-#define PIH_VERSION "0.1.0"
+#define PIH_VERSION "1.0.0"
 
 #define PIH_MAX_CONTROLS 96
 #define PIH_SLOTS 4

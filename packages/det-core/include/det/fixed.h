@@ -1,4 +1,4 @@
-/* det-core: saturating Q16.16 fixed-point arithmetic in int32_t. Part of det-core 0.1.0 (MIT). */
+/* det-core: saturating Q16.16 fixed-point arithmetic in int32_t. Part of det-core 1.0.0 (MIT). */
 #ifndef DET_FIXED_H
 #define DET_FIXED_H
 

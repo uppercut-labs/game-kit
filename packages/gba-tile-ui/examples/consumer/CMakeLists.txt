@@ -12,7 +12,7 @@ project(my_gba_game_tests LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(gba_tile_ui
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        gba-tile-ui@0.1.0
+  GIT_TAG        gba-tile-ui@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/gba-tile-ui)
 FetchContent_MakeAvailable(gba_tile_ui)

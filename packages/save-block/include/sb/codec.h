@@ -1,4 +1,4 @@
-/* save-block: little- and big-endian byte codec and bounded writer and reader. Part of save-block 0.1.0 (MIT). */
+/* save-block: little- and big-endian byte codec and bounded writer and reader. Part of save-block 1.0.0 (MIT). */
 #ifndef SB_CODEC_H
 #define SB_CODEC_H
 

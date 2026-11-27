@@ -16,7 +16,7 @@
 #          LGP_REQUIRE_SDL (default ON): fail when SDL3 is missing. OFF builds without it: a core that asks for an OpenGL
 #          context is then refused one, and software cores still run.
 #          LGP_LIBRETRO_HEADER: a local copy of the pinned libretro.h, for a build with no network.
-#          LGP_PAD_REPLAY_TAG (default pad-replay@0.1.0): the pad-replay release to fetch when none is beside this folder.
+#          LGP_PAD_REPLAY_TAG (default pad-replay@1.0.0): the pad-replay release to fetch when none is beside this folder.
 cmake_minimum_required(VERSION 3.20)
 if(NOT PROJECT_NAME)
   project(libretro_guest_probe LANGUAGES C)
@@ -32,7 +32,7 @@ message(STATUS "libretro-guest-probe ${LGP_VERSION}")
 # pad-replay: from the game-kit checkout this folder sits in when there is one, else at its release tag.
 if(NOT TARGET padr)
   include(FetchContent)
-  set(LGP_PAD_REPLAY_TAG "pad-replay@0.1.0" CACHE STRING "The pad-replay release tag to fetch")
+  set(LGP_PAD_REPLAY_TAG "pad-replay@1.0.0" CACHE STRING "The pad-replay release tag to fetch")
   get_filename_component(_lgp_kit_root "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
   if(NOT DEFINED FETCHCONTENT_SOURCE_DIR_PAD_REPLAY AND EXISTS "${_lgp_kit_root}/packages/pad-replay/CMakeLists.txt")
     set(FETCHCONTENT_SOURCE_DIR_PAD_REPLAY "${_lgp_kit_root}" CACHE PATH "pad-replay from the checkout beside this package")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any, Tuple
@@ -98,9 +99,18 @@ def read_lua(text: str) -> Any:
     return LuaReader(text).parse_chunk()
 
 
-def fake_bizhawk(root: Path) -> Path:
-    """A folder that looks like an install: `EmuHawkMono.sh` (which starts the fake), a `Lua` folder and an `EmuHawk.exe` placeholder."""
+def fake_bizhawk(root: Path) -> "Path | list[str]":
+    """A folder that looks like an install: `EmuHawkMono.sh` (which starts the fake) and a `Lua` folder. Returns the launcher: the
+    script on Linux and macOS; on Windows, where a script would leave the fake as a grandchild that `stop` cannot reach, a command
+    prefix that runs the fake directly."""
     root.mkdir(parents=True, exist_ok=True)
+    (root / "Lua").mkdir(exist_ok=True)
+    if os.name == "nt":
+        from uppercut_bizhawk_driver import fake_emuhawk
+
+        # the base interpreter, run on the file: a virtual environment's python.exe is a launcher that starts the real one,
+        # which would then not be the process the driver started
+        return [getattr(sys, "_base_executable", sys.executable), str(Path(fake_emuhawk.__file__))]
     launcher = root / "EmuHawkMono.sh"
     launcher.write_text(f'#!/bin/sh\nexec "{sys.executable}" -m uppercut_bizhawk_driver.fake_emuhawk "$@"\n', encoding="utf-8")
     launcher.chmod(0o755)

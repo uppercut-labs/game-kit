@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-gba-rom-verify"
-version = "0.1.0"
+version = "1.0.0"
 description = "Check a Game Boy Advance ROM header and its devkitARM ELF, and report the ROM's SHA-256."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["gba", "game-boy-advance", "rom", "header", "checksum", "elf", "devkitarm"]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",

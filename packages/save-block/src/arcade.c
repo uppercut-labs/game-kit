@@ -1,4 +1,4 @@
-/* save-block: the optional arcade profile. Part of save-block 0.1.0 (MIT). */
+/* save-block: the optional arcade profile. Part of save-block 1.0.0 (MIT). */
 #include "sb/arcade.h"
 
 #include <string.h>

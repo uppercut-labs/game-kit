@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-bizhawk-driver"
-version = "0.1.0"
+version = "1.0.0"
 description = "Drive BizHawk from Python: a pinned, checked install, a private config copy for each run, Lua table configs, a launch that stops only its own process, and a wait for the script's .done or .err file."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["bizhawk", "emuhawk", "emulator", "lua", "automation", "capture", "tas"]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",

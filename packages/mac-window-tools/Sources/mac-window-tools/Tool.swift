@@ -35,7 +35,7 @@ func readWindows() -> [WindowInfo] {
 
 /// Takes a picture of one window by id. It reads that window's own pixels and never raises or activates it.
 func capture(_ query: WindowQuery, to path: String, waitSeconds: Double) async throws {
-    _ = NSApplication.shared
+    await MainActor.run { _ = NSApplication.shared }
     _ = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID)
     guard CGPreflightScreenCaptureAccess() else { throw ToolError.screenPermission }
     let clock = ContinuousClock()
@@ -56,8 +56,14 @@ func capture(_ query: WindowQuery, to path: String, waitSeconds: Double) async t
         }
         if let best = largestWindow(in: infos.filter { query.matches($0) }), let window = windows[best.id] {
             let filter = SCContentFilter(desktopIndependentWindow: window)
+            // The default configuration is 1920x1080 whatever the window's size; ask for the window's own pixels.
+            let configuration = SCStreamConfiguration()
+            let scale = CGFloat(filter.pointPixelScale)
+            configuration.width = max(1, Int((window.frame.width * scale).rounded()))
+            configuration.height = max(1, Int((window.frame.height * scale).rounded()))
+            configuration.showsCursor = false
             let image = try await SCScreenshotManager.captureImage(
-                contentFilter: filter, configuration: SCStreamConfiguration())
+                contentFilter: filter, configuration: configuration)
             guard let destination = CGImageDestinationCreateWithURL(
                 URL(fileURLWithPath: path) as CFURL, "public.png" as CFString, 1, nil)
             else { throw ToolError.output }

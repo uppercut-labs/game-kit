@@ -15,7 +15,7 @@ if (rc != MPNG_OK) fprintf(stderr, "%s\n", mpng_error_text(rc));
 Nothing in this package knows a game. It has no dependencies beyond the C library (no zlib, no SDL, no stb), and it
 shares no state between calls, so two threads can write two files at once.
 
-Version 0.1.0. Written in C (C11) with CMake. MIT licence.
+Version 1.0.0. Written in C (C11) with CMake. MIT licence.
 
 ## Install
 
@@ -26,7 +26,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(minimal_png
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        minimal-png@0.1.0
+  GIT_TAG        minimal-png@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/minimal-png)
 FetchContent_MakeAvailable(minimal_png)
@@ -77,12 +77,13 @@ The Python package [`uppercut-port-proof`](../uppercut-port-proof) writes the sa
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (in a container) | gcc, `build-and-test.sh` in Bash; also under AddressSanitizer and UBSan | pass |
-| Windows 11, macOS | not run yet: the Windows file calls (`_wfopen`, `_wremove`) are untested | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | clang 22.1.8 (MSYS2 UCRT64), CMake 4.4.3, Ninja 1.13.2, `build-and-test.ps1` in PowerShell; runs the `_wfopen` and `_wremove` calls | pass, 2 of 2 tests |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja 1.13.2, Python 3.13.18, `build-and-test.sh` | pass, 2 of 2 tests |
 
 The first test decodes every file it writes with a reader of its own for stored blocks, checking each chunk's length and
 CRC, the zlib header and the Adler-32, and compares every pixel; it includes the block boundaries (65535 bytes exactly, one

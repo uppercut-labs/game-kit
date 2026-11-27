@@ -9,7 +9,7 @@ Nothing in this package knows a game. The port supplies its buttons as data (a *
 in the port's pad word and default bindings for each button), and everything a game decides stays in the game: what a
 button means, which screen is a menu, what a macro presses.
 
-Version 0.1.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
+Version 1.0.0. Written in C (C11) with CMake, against SDL 3.2 or later. MIT licence.
 
 ## Install
 
@@ -20,7 +20,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(port_sdl_input
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-sdl-input@0.1.0
+  GIT_TAG        port-sdl-input@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-sdl-input)
 FetchContent_MakeAvailable(port_sdl_input)
@@ -122,12 +122,13 @@ pad, a Switch Pro, a Steam Deck...) from data files and drives the port's adapte
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | SDL3 | Result |
 | --- | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `build-and-test.sh` in Bash, dummy video; also under AddressSanitizer and UBSan | 3.4.20 (built from its release tag) | pass |
-| Windows 11, macOS | not run yet | | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, `tools\check-c.ps1` in PowerShell 7 | MSYS2 package | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, `tools/check-c.sh` | Homebrew | pass |
 
 The virtual joystick needs no display or driver, so the tests run in a headless container too. A real pad's HID reports,
 rumble motors and Bluetooth behaviour need real hardware.

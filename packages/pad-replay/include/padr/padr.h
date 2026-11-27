@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#define PADR_VERSION "0.1.0"
+#define PADR_VERSION "1.0.0"
 
 /* Limits. A slot is a physical pad position (a port, a multitap leg); a replay file names slots by number. */
 #define PADR_MAX_SLOTS 255u

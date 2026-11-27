@@ -4,11 +4,18 @@ Three small jobs on macOS windows that emulator and game capture scripts keep ne
 
 It reads a window by its id. It never raises, activates or focuses a window, and it does not send input. It is the macOS window finder for [`@uppercut-labs/emulator-session`](../emulator-session), and it works by itself.
 
-Version 0.1.0. MIT licence.
+Version 1.0.0. MIT licence.
 
-## Not built or run on Linux
+## Tested at 1.0.0
 
-This package was written on Linux, where there is no Swift compiler. It has not been compiled and its tests have not run. The macOS build, the tests and a real capture wait for a Mac with Xcode 15 or later (or a Swift 5.9 toolchain). Until then, treat the source as unverified.
+| System | Toolchain | Result |
+| --- | --- | --- |
+| macOS 27.0 (Apple M6 Mac mini) | Swift 6.4.2, `swift build -c release` and `swift test` | builds with no warnings; 11 tests pass |
+| the same, `help`, `list`, `find` | `.build/release/mac-window-tools` in an ssh session | pass: `list` printed 24 on-screen windows with their titles, `find --owner Finder` printed the Finder window's id and title, `capture --pid 999999 --wait 1` exited 1 with "no matching window appeared in time" |
+| macOS 27.0 (a second Apple M6 Mac mini) | the same build and tests | pass |
+| the same, `capture --pid <Terminal> --out x.png` in an ssh session | the same build | pass: it wrote an 874 x 499 PNG, the window's own size |
+
+`capture` needs a logged-in desktop session and Screen Recording access. It asks for the window's own pixel size. Before that, it took ScreenCaptureKit's default 1920 x 1080 for every window.
 
 ## What runs where
 
@@ -85,7 +92,7 @@ swift build
 swift test
 ```
 
-The tests cover the matching rules, the largest-window choice with its tie-break, the list and find lines (including a title with `|`) and the argument parser. A capture needs a window, Screen Recording access and a person at the machine, so it is checked by hand.
+The tests cover the matching rules, the largest-window choice with its tie-break, the list and find lines (including a title with `|`) and the argument parser. A capture needs a window and Screen Recording access for the process that runs it, so it is checked on a Mac, not by `swift test`.
 
 ## License
 

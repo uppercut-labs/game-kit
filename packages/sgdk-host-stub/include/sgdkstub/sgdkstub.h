@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#define SGDKSTUB_VERSION "0.1.0"
+#define SGDKSTUB_VERSION "1.0.0"
 
 #define SGS_PLANE_COUNT 3
 #define SGS_MAX_PLANE_W 64

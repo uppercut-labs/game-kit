@@ -11,7 +11,7 @@ project(my_port_pad_replay LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(pad_replay
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        pad-replay@0.1.0
+  GIT_TAG        pad-replay@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/pad-replay)
 FetchContent_MakeAvailable(pad_replay)

@@ -1,6 +1,6 @@
 """Tooling for a PlayStation 2 matching decompilation."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 from . import asmtu, csplit, datafrag, mips, symbols  # noqa: E402
 from .audit import AuditConfig, AuditReport, audit_file, audit_tree  # noqa: E402

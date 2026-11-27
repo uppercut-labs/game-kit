@@ -11,7 +11,7 @@ project(my_port_tests LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(port_input_harness
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-input-harness@0.1.0
+  GIT_TAG        port-input-harness@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-input-harness)
 FetchContent_MakeAvailable(port_input_harness)

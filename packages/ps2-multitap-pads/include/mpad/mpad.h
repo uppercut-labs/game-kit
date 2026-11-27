@@ -1,10 +1,10 @@
-/* ps2-multitap-pads: a poller for up to eight PlayStation 2 controllers through two multitaps. Part of ps2-multitap-pads 0.1.0 (MIT). */
+/* ps2-multitap-pads: a poller for up to eight PlayStation 2 controllers through two multitaps. Part of ps2-multitap-pads 1.0.0 (MIT). */
 #ifndef MPAD_H
 #define MPAD_H
 
 #include <stdint.h>
 
-#define MPAD_VERSION "0.1.0"
+#define MPAD_VERSION "1.0.0"
 
 /* 64-byte alignment for the driver's buffers (C99 has no standard spelling). */
 #if defined(_MSC_VER)

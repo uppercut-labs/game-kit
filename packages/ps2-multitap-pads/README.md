@@ -9,7 +9,7 @@ The poller is a state machine over a small table of functions (`MpadOps`). Nothi
 test drives the whole thing with a fake and no hardware. A short PS2SDK file fills the table with `libpad` and `libmtap`
 calls and is compiled only when you build for the console.
 
-Version 0.1.0. Written in C (C99) with CMake. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake. MIT licence.
 
 ## What is not in it
 
@@ -28,7 +28,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(ps2_multitap_pads
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        ps2-multitap-pads@0.1.0
+  GIT_TAG        ps2-multitap-pads@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/ps2-multitap-pads)
 FetchContent_MakeAvailable(ps2_multitap_pads)
@@ -164,12 +164,13 @@ build error and not a pad that reads wrong. It maps `PAD_STATE_EXECCMD` and any 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18 with `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (poller 293 checks, glue 23) |
-| Windows 11, macOS | not run yet | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 | PS2SDK build, console, emulator | not run: no PS2SDK in the test container | waits for a PS2SDK machine |
 
 The glue test uses stand-in headers whose numbers come from the public PS2SDK `libpad.h`. It proves the glue's own mapping

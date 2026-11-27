@@ -14,7 +14,7 @@ reject; it does not say the ROM builds, boots, looks right or sounds right. Keep
 the games use (a function name, its argument types, the button bit values), written for a stub. Nothing is copied from
 SGDK's source or headers, and the SGDK headers are not needed to build or test.
 
-Version 0.1.0. Written in C (C99) with CMake. No dependencies beyond the C library. MIT licence.
+Version 1.0.0. Written in C (C99) with CMake. No dependencies beyond the C library. MIT licence.
 
 ## Install
 
@@ -25,7 +25,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(sgdk_host_stub
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        sgdk-host-stub@0.1.0
+  GIT_TAG        sgdk-host-stub@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/sgdk-host-stub)
 FetchContent_MakeAvailable(sgdk_host_stub)
@@ -146,12 +146,13 @@ data fills them in to have `SPR_setAnim` and `SPR_setFrame` checked, and leaves 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu, in a container) | gcc, `-Wall -Wextra -pedantic`; the library test, its power-on test and its abort test; the example consumer; the library test again under AddressSanitizer and UBSan | pass |
-| Windows, macOS | not run yet | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
 Build and run the tests, from this folder:
 

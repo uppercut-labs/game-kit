@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define MPNG_VERSION "0.1.0"
+#define MPNG_VERSION "1.0.0"
 
 #ifdef __cplusplus
 extern "C" {

@@ -11,7 +11,7 @@ project(my_ps2_pads LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(ps2_multitap_pads
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        ps2-multitap-pads@0.1.0
+  GIT_TAG        ps2-multitap-pads@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/ps2-multitap-pads)
 FetchContent_MakeAvailable(ps2_multitap_pads)

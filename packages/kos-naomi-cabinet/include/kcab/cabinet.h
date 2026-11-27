@@ -1,5 +1,5 @@
 /* The cabinet's coin counters and its test and service switches, as pure functions: no JVS, no KOS. Part of
- * kos-naomi-cabinet 0.1.0 (MIT). */
+ * kos-naomi-cabinet 1.0.0 (MIT). */
 #ifndef KCAB_CABINET_H
 #define KCAB_CABINET_H
 

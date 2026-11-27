@@ -21,4 +21,4 @@ __all__ = [
     "verify_megadrive_checksum",
     "verify_n64_checksums",
 ]
-__version__ = "0.1.0"
+__version__ = "1.0.0"

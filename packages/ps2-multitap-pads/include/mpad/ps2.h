@@ -1,4 +1,4 @@
-/* The PS2SDK side of ps2-multitap-pads: libpad and libmtap behind the MpadOps table. Part of ps2-multitap-pads 0.1.0 (MIT).
+/* The PS2SDK side of ps2-multitap-pads: libpad and libmtap behind the MpadOps table. Part of ps2-multitap-pads 1.0.0 (MIT).
  *
  * Compile src/ps2.c only with the PS2SDK (the pad poller itself, src/mpad.c, builds anywhere). Link -lpadx -lmtap
  * (or -lpad -lmtap).

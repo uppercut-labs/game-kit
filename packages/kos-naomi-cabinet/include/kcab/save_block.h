@@ -1,5 +1,5 @@
 /* An NAOMI EEPROM as the storage of a save-block store: its two slots are the two copies of the game block. Part of
- * kos-naomi-cabinet 0.1.0 (MIT). Needs the save-block package. */
+ * kos-naomi-cabinet 1.0.0 (MIT). Needs the save-block package. */
 #ifndef KCAB_SAVE_BLOCK_H
 #define KCAB_SAVE_BLOCK_H
 

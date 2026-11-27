@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-port-proof"
-version = "0.1.0"
+version = "1.0.0"
 description = "Helpers for the proof run of a recompiled game port: PPM frame dumps to PNG, frame MD5 comparison, WAV statistics, press scripts and a debug-socket driver."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["recompilation", "game-port", "ppm", "png", "wav", "frame-dump", "proof-run", "debug-socket"]
 dependencies = []
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",

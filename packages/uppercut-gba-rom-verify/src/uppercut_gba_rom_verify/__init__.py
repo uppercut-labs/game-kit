@@ -25,4 +25,4 @@ __all__ = [
     "validate_rom_bytes",
     "validate_rom_file",
 ]
-__version__ = "0.1.0"
+__version__ = "1.0.0"

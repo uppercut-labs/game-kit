@@ -14,7 +14,7 @@ Nothing in this package knows a game. It has no dependencies beyond the C librar
 can use it too. It works with `port-sdl-input` (its three store functions are the ones that package's input layer takes),
 and by itself.
 
-Version 0.1.0. Written in C (C11) with CMake. MIT licence.
+Version 1.0.0. Written in C (C11) with CMake. MIT licence.
 
 ## Install
 
@@ -25,7 +25,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(port_settings
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        port-settings@0.1.0
+  GIT_TAG        port-settings@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/port-settings)
 FetchContent_MakeAvailable(port_settings)
@@ -92,12 +92,13 @@ restart) is the game's, and it draws with the game's renderer. This package is w
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 0.1.0:
+Tested at 1.0.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `build-and-test.sh` in Bash; also under AddressSanitizer and UBSan | pass |
-| Windows 11, macOS | not run yet: the Windows file calls (`_wfopen`, `MoveFileExW`) are untested | waits for a maintainer machine |
+| Windows 11 Pro (10.0.26300) | clang 22.1.8 (MSYS2 UCRT64), CMake 4.4.3, Ninja 1.13.2, `build-and-test.ps1` in PowerShell; runs the `_wfopen` and `MoveFileExW` calls | pass, 1 of 1 test |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja 1.13.2, `build-and-test.sh` | pass, 1 of 1 test |
 
 Build and run the test, from this folder:
 

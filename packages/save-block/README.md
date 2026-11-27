@@ -9,7 +9,7 @@ until the new one has verified.
 It has no platform code: storage is the caller's `read` and `write` callbacks (a file, a memory-card slot, EEPROM,
 battery RAM), so the same logic runs on a console and, with the RAM storage in the package, in a plain unit test.
 
-Version 0.1.0. C (C99) with CMake, no platform headers. Uses [det-core](../det-core) for FNV-1a. MIT licence.
+Version 1.0.0. C (C99) with CMake, no platform headers. Uses [det-core](../det-core) for FNV-1a. MIT licence.
 
 ## Install
 
@@ -20,7 +20,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(save_block
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        save-block@0.1.0
+  GIT_TAG        save-block@1.0.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/save-block)
 FetchContent_MakeAvailable(save_block)
@@ -35,7 +35,7 @@ target_link_libraries(my-game PRIVATE save_block::save_block)
 **det-core.** save-block gets its checksum from det-core and finds it in this order: a `det_core::det_core` target the
 project already made (declare det-core first with its own `FetchContent_Declare` at the tag you want and save-block
 uses that one); then the `det-core` folder next to it (a clone or checkout of game-kit has both); then a download of
-`det-core@0.1.0` (when the folder was packed on its own; needs git and network, or
+`det-core@1.0.0` (when the folder was packed on its own; needs git and network, or
 `-DFETCHCONTENT_SOURCE_DIR_DET_CORE=<a checkout of game-kit>`). A build system other than CMake needs `include/` of both
 packages on the include path, and `src/record.c`, `src/arcade.c` and optionally `src/memory.c` compiled.
 

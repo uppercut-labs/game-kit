@@ -60,7 +60,7 @@ if(NOT KCAB_SAVE_BLOCK STREQUAL "OFF")
       include(FetchContent)
       FetchContent_Declare(save_block
         GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-        GIT_TAG        save-block@0.1.0
+        GIT_TAG        save-block@1.0.0
         GIT_SHALLOW    TRUE
         SOURCE_SUBDIR  packages/save-block)
       FetchContent_MakeAvailable(save_block)

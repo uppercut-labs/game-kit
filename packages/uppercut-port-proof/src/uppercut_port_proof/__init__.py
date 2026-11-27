@@ -1,6 +1,6 @@
 """Helpers for the proof run of a recompiled game port."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 from .debug import DebugClient, run_presses, wait_frame, wait_ready  # noqa: E402
 from .errors import DebugError, PpmError, PressError, ProofError, WavError  # noqa: E402
