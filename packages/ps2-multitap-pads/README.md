@@ -160,7 +160,8 @@ build error and not a pad that reads wrong. It maps `PAD_STATE_EXECCMD` and any 
 | --- | --- | --- |
 | the poller and its tests (C, CMake) | Windows, macOS, Linux; CMake 3.20+, Ninja, a C99 compiler | any shell: it is a program |
 | the glue's mapping test (`mpad-ps2-glue-test`) | the same | built against stand-in headers in `tests/ps2sdk-stub` |
-| `src/ps2.c` against the real PS2SDK, and a real pad | a PS2 or an emulator | not run here |
+| `src/ps2.c` against the real PS2SDK | any machine with Docker: the `ghcr.io/ps2dev/ps2dev` image | the Makefile under "On the console" |
+| a real pad on a PS2 or an emulator | a project's own test | outside this package's tests, which drive a fake pad driver |
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
@@ -171,11 +172,12 @@ Tested at 1.0.0:
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18 with `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (poller 293 checks, glue 23) |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
-| PS2SDK build, console, emulator | not run: no PS2SDK in the test container | waits for a PS2SDK machine |
+| PS2SDK: `ghcr.io/ps2dev/ps2dev:latest` (digest `sha256:6452994a6cf1`, built 2026-11-20 from ps2dev master `594e2b2`), Docker on Apple M6 | mips64r5900el-ps2-elf-gcc 15.2.0; the Makefile under "On the console" with `-Wall -Wextra -Werror` builds `src/mpad.c`, `src/ps2.c` and `src/ps2_bin2c.c` and links them with `-lpadx -lmtap` (and with `-lpad -lmtap`), `sio2man`, `mtapman` and `padman` embedded by `bin2c`, into a test ELF that resets the IOP, starts the pads and polls; the three files also compile with `-std=c99 -Wpedantic -Werror` | builds clean; `mpad_ps2_ops`, `mpad_ps2_start` and `mpad_ps2_start_bin2c` are in the ELF |
 
 The glue test uses stand-in headers whose numbers come from the public PS2SDK `libpad.h`. It proves the glue's own mapping
-and call order; it does not prove the real SDK headers compile against it. Build `src/ps2.c` with the SDK once before
-trusting a release on the console.
+and call order. The PS2SDK build above compiles `src/ps2.c` against the real SDK headers, and the glue's compile-time
+assertions check its button and pad-type numbers against the SDK's own macros. The package's tests do not run on a console
+or an emulator.
 
 Build and run the tests, from this folder:
 

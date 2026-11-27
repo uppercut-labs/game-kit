@@ -121,6 +121,7 @@ The three games' helpers differed in small ways; this package picks one behaviou
 | Part | Runs on | In |
 | --- | --- | --- |
 | the core and its test (C, CMake) | Windows, macOS, Linux; CMake 3.20+, Ninja and a C compiler | any shell: it is a program |
+| the libgba glue against the real libgba | any machine with Docker: the `devkitpro/devkitarm` image | the source list and include path under "On the console" |
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
@@ -129,7 +130,7 @@ Tested at 1.0.0:
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu, in a container) | gcc, `-Wall -Wextra -pedantic`; the library test (the glue is compiled against a made-up `gba.h` in `tests/fake_gba`); the example consumer | pass |
-| devkitARM and libgba, real console | not run: no devkitARM was available. The glue has only been compiled against the test's fake `gba.h`; `dmaCopy`, `MAP_BASE_ADR` and `OAM` are used as libgba defines them | waits for a maintainer machine |
+| devkitARM r68 (`devkitpro/devkitarm:latest`, digest `sha256:116afba8df84`, built 2026-06-10) with libgba 0.5.4, Docker on Apple M6 | arm-none-eabi-gcc 16.1.0, `-mthumb -mthumb-interwork -mcpu=arm7tdmi -O2`: `src/gba_tile_ui.c` with `-std=c99 -Wall -Wextra -Wpedantic -Werror`; a test program that includes `gba_tile_ui_gba.h` and calls `gtu_present_gba` each vertical blank, and `examples/consumer/screen.c`, with `-std=gnu99 -Wall -Wextra -Werror` (libgba's own headers use `asm`, so the glue is built in GNU C); linked with `-specs=gba.specs -lgba` and fixed with `gbafix` into a 4 KB `.gba` ROM | builds clean; `dmaCopy`, `MAP_BASE_ADR` and `OAM` are the real libgba definitions. The tests do not run the ROM on a console or an emulator |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 

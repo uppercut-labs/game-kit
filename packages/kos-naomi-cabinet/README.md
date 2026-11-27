@@ -170,7 +170,8 @@ to the store until its first save replaces it. A game that keeps more than 26 by
 | --- | --- | --- |
 | the logic, the adapter and their tests (C, CMake) | Windows, macOS, Linux; CMake 3.20+, Ninja, a C99 compiler | any shell: it is a program |
 | the glue's mapping test (`kcab-test-kos-glue`) | the same | built against stand-in headers in `tests/kos-stub` |
-| `src/kos.c` against real KallistiOS, a cabinet or an emulator | a KOS toolchain | not run here |
+| `src/kos.c` and `src/kos_naomi_mode.c` against real KallistiOS | any machine with Docker and a KallistiOS NAOMI toolchain image | the KOS Makefile under "On the console" |
+| a cabinet or an emulator | a project's own test | outside this package's tests, which use a RAM chip and a fake driver |
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
@@ -181,11 +182,12 @@ Tested at 1.0.0:
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18, `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (eeprom 1,840 checks, cabinet 36, glue 24, adapter 50) |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
-| KallistiOS build, cabinet, emulator | not run: no KOS toolchain in the test container | waits for a KOS machine |
+| KallistiOS at commit `9926b70aeafc`, NAOMI subarchitecture (`_arch_sub_naomi`), Docker (linux/amd64) on Apple M6 | sh-elf-gcc 15.2.0; a KOS Makefile (`kos-cc`, `Makefile.rules`) compiles `src/eeprom.c`, `src/cabinet.c`, `src/ram.c`, `src/kos.c` and `src/kos_naomi_mode.c` with `-Wall -Wextra -Werror` and links them with `-Wl,--wrap=hardware_sys_mode` into a NAOMI test ELF that polls for the board, loads and saves a settings block and reads coins and switches; `src/kos.c` and `src/kos_naomi_mode.c` also compile with `-std=c99 -Wpedantic -Werror` | builds clean; the MIE calls (`mie_get_eeprom`, `mie_set_eeprom`, `mie_port0_mode`) and the `hardware_sys_mode` wrap resolve in the link |
+| KallistiOS `525cbda`, Dreamcast (`pristine`) subarchitecture (`einsteinx2/dcdev-kos-toolchain`), Docker on Apple M6 | sh-elf-gcc 9.3.0, `kos-cc -Wall -Wextra -Werror -c src/kos.c` | builds clean (the branch with no MIE bridge, where every call reports not ready) |
 
 The glue test uses stand-in headers that declare the names and field paths of the public MIE header. It proves the glue's
-own mapping; it does not prove the real KallistiOS headers compile against it. Build `src/kos.c` with KOS once before
-trusting a release on the console.
+own mapping. The KallistiOS builds above compile `src/kos.c` against the real KOS and MIE headers. The package's tests do not
+run on a cabinet or an emulator.
 
 Build and run the tests, from this folder:
 

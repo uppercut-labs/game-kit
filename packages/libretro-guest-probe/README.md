@@ -117,8 +117,8 @@ Tested at 1.0.0:
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container, no GPU) | gcc 13, SDL3 3.4, `check-c.sh`; also built with `-DLGP_REQUIRE_SDL=OFF`, and under AddressSanitizer and UBSan | pass |
-| a real core (PPSSPP, Flycast) with a game | not run: no core, no game and no GPU where this was written | waits for a maintainer machine |
-| the hidden OpenGL window and context | not run: the container has no GPU and its SDL3 had no OpenGL window system; only the refusal path ran | waits for a maintainer machine |
+| a real core (PPSSPP, Flycast) with a game | the tests drive the host with a fake core (`tests/fake_core.c`). A project supplies its own core and its own game and points the tool at them; the package carries neither | scope of the tests: the host, input, options and memory probe against a fake core |
+| the hidden OpenGL window and context | the tests run the refusal path: with no display and no GPU a core's request for OpenGL is answered no and the log says why. The context is made on a machine whose SDL3 has an OpenGL window system and a GPU | refusal path passes |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, SDL3 from MSYS2, `tools\check-c.ps1` in PowerShell 7 | pass. This run found that an address over 32 bits was accepted on Windows, where `unsigned long` is 32 bits; it is now refused there too |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
