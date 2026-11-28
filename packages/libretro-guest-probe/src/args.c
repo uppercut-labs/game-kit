@@ -32,13 +32,19 @@ const char *lgp_usage(void)
            "  --watch NAME=ADDR[:SIZE]   log changes of a value (SIZE 1, 2 or 4, default 4; add 'be' for big endian: 4be)\n"
            "  --expect NAME=VALUE    the run fails unless the watch equalled VALUE at some point; repeatable\n"
            "  --stop NAME=VALUE[@TICK]   end the run when the watch equals VALUE and the tick is at least TICK\n"
+           "capture (it starts once the guest is ready)\n"
+           "  --video FILE           write raw RGB24 frames, top-down, one per video callback, to a file or named pipe\n"
+           "  --audio FILE           write raw signed 16-bit little-endian stereo samples to a file or named pipe\n"
+           "  --video-size WxH       the frame size written (default: the first frame's); another size is an error\n"
+           "  --capture-frames N     stop capturing after N video frames (default: no limit)\n"
            "run\n"
            "  --max-frames N         bound on host frames (default 20000)\n"
            "  --delay-ms N           sleep when the guest has not started (default 1)\n"
            "  --frame-delay-ms N     sleep after every frame (default 0)\n"
            "  --version, --help\n"
            "\n"
-           "exit: 0 ran and every --expect was seen, 1 an --expect was not seen, 2 usage, 3 core, 4 load, 5 record file\n";
+           "exit: 0 ran and every --expect was seen, 1 an --expect was not seen, 2 usage, 3 core, 4 load,\n"
+           "      5 the record file or a capture output\n";
 }
 
 typedef struct Tap {
@@ -303,6 +309,24 @@ int lgp_args_parse(int argc, char **argv, LgpSetup *s, FILE *err)
             if (!lgp_probe_parse_stop(s->probe, argv[++i])) {
                 code = bad(err, "bad --stop (want NAME=VALUE[@TICK] for a name given to --watch first)", argv[i]);
             }
+        } else if (strcmp(a, "--video") == 0) {
+            NEED(a);
+            s->config.video_path = argv[++i];
+        } else if (strcmp(a, "--audio") == 0) {
+            NEED(a);
+            s->config.audio_path = argv[++i];
+        } else if (strcmp(a, "--video-size") == 0) {
+            unsigned w, h;
+            char tail;
+            NEED(a);
+            if (sscanf(argv[++i], "%ux%u%c", &w, &h, &tail) != 2 || w == 0 || h == 0 || w > 8192 || h > 8192) {
+                code = bad(err, "bad --video-size (want WIDTHxHEIGHT, e.g. 640x480)", argv[i]);
+            } else {
+                s->config.capture_width = w;
+                s->config.capture_height = h;
+            }
+        } else if (strcmp(a, "--capture-frames") == 0) {
+            NUMBER("--capture-frames", s->config.capture_max_frames);
         } else if (strcmp(a, "--max-frames") == 0) {
             NUMBER("--max-frames", s->config.max_frames);
         } else if (strcmp(a, "--delay-ms") == 0) {

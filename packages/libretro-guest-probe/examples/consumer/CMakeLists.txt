@@ -12,7 +12,7 @@ project(my_guest_probe LANGUAGES C)
 include(FetchContent)
 FetchContent_Declare(libretro_guest_probe
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        libretro-guest-probe@1.0.0
+  GIT_TAG        libretro-guest-probe@1.1.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/libretro-guest-probe)
 FetchContent_MakeAvailable(libretro_guest_probe)
