@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-#define LGP_VERSION "1.0.0"
+#define LGP_VERSION "1.1.0"
 #define LGP_MAX_PORTS 8u
 
 /* Exit codes of lgp_run() and of the command line. */
@@ -30,7 +30,7 @@ enum {
     LGP_ERR_ARGS = 2,
     LGP_ERR_CORE = 3,  /* the core would not load, or lacks a libretro function */
     LGP_ERR_LOAD = 4,  /* retro_load_game said no */
-    LGP_ERR_IO = 5,    /* the record file could not be created or written */
+    LGP_ERR_IO = 5,    /* the record file or a capture output could not be created or written */
     LGP_HELP = 100     /* lgp_args_parse() printed help or the version: not an error, nothing to run */
 };
 
@@ -128,6 +128,101 @@ LgpSample lgp_probe_sample(LgpProbe *probe, const uint8_t *memory, size_t size, 
 int lgp_probe_report(const LgpProbe *probe, FILE *out);
 int lgp_probe_has_tick(const LgpProbe *probe);
 
+/* ---- guest addresses ------------------------------------------------------------------------------------------- */
+
+/* Where a guest's RAM appears in its own address space, so a symbol address from the toolchain's nm can be turned into an
+ * offset into the memory the core exposes. An address is accepted when it is already an offset (no higher than `mask`)
+ * or when its bits above `mask` are one of `bases`; the offset is then `address & mask`. With no bases, every address
+ * is accepted and masked, as --address-mask does.
+ *
+ * SH-4 (Dreamcast, NAOMI) is one example: RAM is mirrored at 0x0c000000 (physical), 0x8c000000 (cached) and 0xac000000
+ * (uncached), and NAOMI's second 16 MiB bank follows the first, so mask 0x01ffffff with those three bases takes
+ * 0x8c0e0100 to 0x000e0100 and refuses 0x0e000000. */
+#define LGP_MAX_RAM_BASES 8u
+
+typedef struct LgpRamWindow {
+    uint32_t mask;
+    uint32_t bases[LGP_MAX_RAM_BASES];
+    unsigned base_count;
+} LgpRamWindow;
+
+void lgp_ram_window_init(LgpRamWindow *window, uint32_t mask);
+int lgp_ram_window_add_base(LgpRamWindow *window, uint32_t base); /* 1, or 0 when full or `base` has bits in `mask` */
+int lgp_ram_offset(const LgpRamWindow *window, uint32_t address, uint32_t *offset);
+/* The same from text: a number in C syntax ("0x8c0e0100", "917760"), optional leading spaces and '+'. 1 or 0. */
+int lgp_ram_parse_offset(const LgpRamWindow *window, const char *text, uint32_t *offset);
+
+/* The address of `symbol` in a symbol listing written by nm ("8c0e0100 B _symbol", one per line). Returns 1 and sets
+ * `*address`, or 0 when the file cannot be read or has no such symbol. */
+int lgp_nm_lookup(const char *nm_path, const char *symbol, uint32_t *address);
+
+/* Copy `count` 32-bit words at `offset` in a block of guest memory into `out` (host order, so a record of 32-bit fields,
+ * floats included, can be read straight into a struct). The block need not be aligned. Returns 1, or 0 when the words
+ * do not fit inside the block (nothing is copied then). */
+int lgp_read_words(const uint8_t *memory, size_t size, uint32_t offset, void *out, size_t count, int big_endian);
+
+/* ---- video and audio ------------------------------------------------------------------------------------------- */
+
+/* What a run counts, from the first retro_run. */
+typedef struct LgpCounters {
+    unsigned runs;           /* retro_run calls */
+    unsigned presented;      /* video callbacks with a new frame: pixels, or RETRO_HW_FRAME_BUFFER_VALID */
+    unsigned repeated;       /* video callbacks with no data: the core says the previous frame stands (a dupe) */
+    unsigned no_video;       /* retro_run calls that made no video callback at all */
+    unsigned guest_stalls;   /* runs in which the guest's tick did not move (only with a probe tick) */
+    unsigned guest_leaps;    /* guest ticks skipped, when the tick moved by more than one in a run */
+    unsigned max_run_us;     /* the longest retro_run, in microseconds */
+    uint64_t audio_frames;   /* stereo sample frames the core sent */
+    unsigned captured_video; /* frames written to the video output */
+    uint64_t captured_audio; /* stereo sample frames written to the audio output */
+} LgpCounters;
+
+/* What the last retro_run did. */
+typedef struct LgpRunStats {
+    unsigned presented, repeated; /* video callbacks of each kind in this run */
+    unsigned audio_frames;
+    unsigned run_us;
+    unsigned tick_step; /* how far the guest's tick moved (0 without a probe tick, or before the guest started) */
+} LgpRunStats;
+
+/* Turn one software frame into top-down RGB24. `format` is RETRO_PIXEL_FORMAT_* (0 0RGB1555, 1 XRGB8888, 2 RGB565).
+ * Returns 1, or 0 for an unknown format. */
+int lgp_convert_rgb24(unsigned format, const void *pixels, unsigned width, unsigned height, size_t pitch, uint8_t *rgb);
+
+/* ---- the frame hook -------------------------------------------------------------------------------------------- */
+
+/* Given to the hook after every retro_run, with the guest's memory as that run left it. */
+typedef struct LgpFrameInfo {
+    unsigned host_frame;       /* the index of the retro_run just made, from 0 */
+    int ready;                 /* the probe's guard: 0 while the guest's tick reads 0 or its memory is not there */
+    unsigned tick;             /* the guest's tick (the host frame without a probe tick) */
+    const uint8_t *memory;     /* the memory block config->memory_id after this run, or NULL */
+    size_t memory_size;
+    LgpRunStats run;
+    const LgpCounters *total;  /* everything so far, this run included */
+    double fps, sample_rate;   /* from the core's AV info (0 when it gave none) */
+    unsigned ports;
+} LgpFrameInfo;
+
+/* What the hook decides for the next retro_run. */
+typedef struct LgpFrameControl {
+    /* Each port's buttons, one bit per RETRO_DEVICE_ID_JOYPAD_* id (bit 3 Start, bit 13 R2). Filled before the call with
+     * what the replay would give (through the button map), or zero with no replay. A pressed L2 or R2 also reads as a
+     * fully pressed analog trigger (see lgp_joypad_state). The left stick still comes from the replay. */
+    uint16_t joypad[LGP_MAX_PORTS];
+    /* Write the next run's video and audio to the capture outputs. Filled with the current state: capture starts by
+     * itself the first time the guest is ready (when an output is set) and ends after capture_max_frames frames. */
+    int capture;
+    int stop; /* end the run after this frame */
+} LgpFrameControl;
+
+typedef void (*LgpFrameHook)(void *user, const LgpFrameInfo *info, LgpFrameControl *control);
+
+/* What the core reads from a port driven by the hook: `joypad` as above. Answers retro_input_state for the joypad
+ * (single buttons and RETRO_DEVICE_ID_JOYPAD_MASK) and for the analog buttons (RETRO_DEVICE_INDEX_ANALOG_BUTTON, which
+ * cores read for the L2 and R2 triggers), where a pressed button reads 0x7fff. 0 for anything else. */
+int16_t lgp_joypad_state(uint16_t joypad, unsigned device, unsigned index, unsigned id);
+
 /* ---- the run --------------------------------------------------------------------------------------------------- */
 
 typedef struct LgpConfig {
@@ -147,6 +242,17 @@ typedef struct LgpConfig {
     unsigned frame_delay_ms;  /* sleep after every frame (default 0) */
     unsigned gl_major, gl_minor; /* the hidden OpenGL core context made if the core asks for one (default 3.2) */
     FILE *log;                /* default stderr */
+
+    /* added in 1.1.0; lgp_config_defaults leaves them off */
+    LgpFrameHook frame_hook;  /* NULL, or called after every retro_run (see LgpFrameControl) */
+    void *frame_user;         /* passed to frame_hook */
+    const char *video_path;   /* NULL, or a file or named pipe for raw RGB24 frames, top-down, one per video callback */
+    const char *audio_path;   /* NULL, or a file or named pipe for raw signed 16-bit little-endian stereo samples */
+    FILE *video_out;          /* instead of video_path: an open stream (the caller closes it) */
+    FILE *audio_out;          /* instead of audio_path */
+    unsigned capture_width, capture_height; /* the frame size written; 0 takes the first frame's. A frame of another
+                                               size is a capture error */
+    unsigned capture_max_frames; /* stop capturing after this many video frames (0: no limit) */
 } LgpConfig;
 
 typedef struct LgpResult {
@@ -156,13 +262,21 @@ typedef struct LgpResult {
     int stopped;               /* a stop rule ended the run */
     int expectations_met;
     int hw_render_requested;   /* the core asked for an OpenGL context */
+
+    /* added in 1.1.0 */
+    LgpCounters counters;
+    double fps, sample_rate;   /* the core's AV info, 0 when it gave none */
+    unsigned video_width, video_height; /* the size of the frames captured (0 when nothing was) */
+    int capture_error;         /* a capture output could not be opened or written, or a frame changed size */
+    int hw_context;            /* the core was given an OpenGL context */
 } LgpResult;
 
 void lgp_config_defaults(LgpConfig *config);
 
-/* Load the core, run up to max_frames frames or until a stop rule, unload. Returns an LGP_* code. A hardware-render core
- * gets a hidden OpenGL context made with SDL3 when the library was built with it; without a display or GPU that fails
- * and the core is told it cannot have one. */
+/* Load the core, run up to max_frames frames or until a stop rule or the hook says stop, unload. Returns an LGP_* code.
+ * A hardware-render core gets a hidden window, an OpenGL core context and a framebuffer object to draw into, made with
+ * SDL3 or SDL2 when the library was built with one; without a display or GPU that fails and the core is told it cannot
+ * have one. A capture error makes the result LGP_ERR_IO once the run is over. */
 int lgp_run(const LgpConfig *config, LgpResult *result);
 
 /* ---- the command line ------------------------------------------------------------------------------------------ */

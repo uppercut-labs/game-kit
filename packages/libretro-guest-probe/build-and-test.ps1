@@ -1,10 +1,9 @@
 # Builds libretro-guest-probe and its tests and runs them. Windows, PowerShell 5.1 or 7.
 #
-#   .\build-and-test.ps1 [-Build <dir>] [-Compiler clang] [-CMakeArguments @("-DCMAKE_PREFIX_PATH=<SDL3 prefix>")]
+#   .\build-and-test.ps1 [-Build <dir>] [-Compiler clang] [-CMakeArguments @("-DCMAKE_PREFIX_PATH=<SDL prefix>")]
 #
 # Needs CMake, Ninja, a C compiler, git and network at configure time (pad-replay and libretro.h are fetched), and SDL3
-# unless -CMakeArguments gives -DLGP_REQUIRE_SDL=OFF. The tests need no display, GPU or core. The Windows library calls
-# (LoadLibrary, Sleep) were not run when this was written.
+# or SDL2 unless -CMakeArguments gives -DLGP_REQUIRE_SDL=OFF. The tests need no display, GPU or core.
 param(
     [string]$Build = "build-lgp",
     [string]$Compiler = "clang",

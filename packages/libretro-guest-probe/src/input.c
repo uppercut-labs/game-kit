@@ -101,3 +101,19 @@ int16_t lgp_pads_state(const LgpPads *pads, unsigned port, unsigned device, unsi
     }
     return id < 16u && (mask & (1u << id)) ? 1 : 0;
 }
+
+/* A port driven by the frame hook: one bit per joypad id. Analog index 2 is RETRO_DEVICE_INDEX_ANALOG_BUTTON, which
+ * cores such as Flycast read for the L2 and R2 triggers: a pressed button reads fully pressed. */
+int16_t lgp_joypad_state(uint16_t joypad, unsigned device, unsigned index, unsigned id)
+{
+    if (device == 1u) {
+        if (id == 256u) {
+            return (int16_t)joypad;
+        }
+        return id < 16u && (joypad & (1u << id)) ? 1 : 0;
+    }
+    if (device == 5u && index == 2u && id < 16u) {
+        return (joypad & (1u << id)) ? 0x7fff : 0;
+    }
+    return 0;
+}
