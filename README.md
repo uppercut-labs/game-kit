@@ -32,7 +32,7 @@ Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs
 | [`uppercut-poly-meshes`](packages/uppercut-poly-meshes) | Regular-polyhedron meshes (exact vertices, exact hull, icosphere) and C-array emitters for float and fixed-point console layouts |
 | [`uppercut-port-proof`](packages/uppercut-port-proof) | The proof run of a recompiled game port: PPM frame dumps to PNG, frame MD5 comparison, WAV statistics, press scripts and a debug-socket driver |
 | [`uppercut-ps2-match`](packages/uppercut-ps2-match) | PlayStation 2 matching decompilation: compile one function and check its bytes, place data, split C files, fetch a pinned toolchain, audit a public repo |
-| [`uppercut-retro-pixels`](packages/uppercut-retro-pixels) | Retro console pixel formats as pure functions: RGB565, ARGB4444, ARGB1555, RGBA5551 and BGR555, swizzle, RLE, palette ramps and a glyph-atlas packer |
+| [`uppercut-retro-pixels`](packages/uppercut-retro-pixels) | Retro console pixel formats and texture layouts as pure functions: RGB565, ARGB4444, ARGB1555, RGBA5551 and BGR555, the PSP swizzle, GameCube RGBA8 tiles, the original Xbox swizzle, RLE, palette ramps and a glyph-atlas packer |
 | [`uppercut-rom-headers`](packages/uppercut-rom-headers) | Computes, fixes and verifies the header checksums of Nintendo 64, Mega Drive and 32X, and Game Boy Advance ROMs |
 | [`uppercut-sound-effect-synth`](packages/uppercut-sound-effect-synth) | Deterministic procedural sound effects: envelopes, filtered noise, sweeps, seeded variation and WAV output |
 

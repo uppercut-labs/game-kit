@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-retro-pixels"
-version = "1.0.0"
-description = "Retro console pixel formats as pure functions: RGB565, ARGB4444, ARGB1555, RGBA5551 and BGR555, R/B swap, block swizzle, RLE, palette ramps and a glyph-atlas packer."
+version = "1.1.0"
+description = "Retro console pixel formats and texture layouts as pure functions: RGB565, ARGB4444, ARGB1555, RGBA5551 and BGR555, R/B swap, the PSP swizzle, GameCube RGBA8 tiles, the original Xbox swizzle, RLE, palette ramps and a glyph-atlas packer."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
-keywords = ["rgb565", "argb4444", "argb1555", "rgba5551", "swizzle", "texture", "atlas", "retro", "console"]
+keywords = ["rgb565", "argb4444", "argb1555", "rgba5551", "swizzle", "texture", "atlas", "retro", "console", "gamecube", "xbox", "nv2a", "psp"]
 dependencies = []
 classifiers = [
   "Development Status :: 5 - Production/Stable",
