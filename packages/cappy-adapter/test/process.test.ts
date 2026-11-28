@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { OutputRing, ProcessExitError, ProcessSupervisor } from '../src/index.js';
 
@@ -52,7 +53,7 @@ describe('ProcessSupervisor', () => {
     const error = await supervisor.run(node, ['-e', script]).catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(ProcessExitError);
     expect((error as ProcessExitError).code).toBe(3);
-    expect((error as ProcessExitError).message).toMatch(/^node -e exited 3: b \| c \| d$/);
+    expect((error as ProcessExitError).message).toBe(`${path.basename(node)} -e exited 3: b | c | d`);
     expect((error as ProcessExitError).output).toContain('a');
   });
 
