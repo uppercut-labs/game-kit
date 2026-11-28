@@ -207,10 +207,10 @@ Tested at 1.1.0:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
-| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, SDL3 3.4, `tools/check-c.sh`; the package again with `-DLGP_SDL=SDL2` (sdl2-compat) | pass |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, SDL3 3.4.20, `tools/check-c.sh`; the package again with `-DLGP_SDL=SDL2` (sdl2-compat 2.32.74) | pass |
 | Flycast libretro core (commit `3a5267a5e`, OpenGL) with a Dreamcast game, macOS 27.0 (Apple M6) | the closed-loop example, SDL3 and SDL2 builds | pass: see [The closed-loop example](#the-closed-loop-example) |
-| Linux arm64 (Debian trixie, in a container, no GPU) | LINUX_TOOLCHAIN | LINUX_RESULT |
-| Windows 11 Pro (10.0.26300) | WINDOWS_TOOLCHAIN | WINDOWS_RESULT |
+| Linux arm64 (Debian trixie, in a container, no GPU) | gcc 14.2, CMake 3.31.6, SDL3 3.2.10, the package and its example consumer as `tools/check-c.sh` builds them; the package again with `-DLGP_SDL=SDL2` (SDL2 2.32.4), with `-DLGP_REQUIRE_SDL=OFF`, and under AddressSanitizer and UBSan | pass |
+| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja, SDL3 3.4.16, `build-and-test.ps1` in PowerShell 7 | pass |
 
 Tested at 1.0.0:
 
