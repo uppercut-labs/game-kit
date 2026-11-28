@@ -19,15 +19,17 @@ Every package is at version 1.0.0 or later; each README gives its current versio
 | Package | What it does |
 | --- | --- |
 | [`uppercut-bizhawk-driver`](packages/uppercut-bizhawk-driver) | Drives BizHawk: a pinned, checked install, a private config per run, Lua table configs, a launch that stops only its own process, and a wait for the script's result file |
+| [`uppercut-c-style`](packages/uppercut-c-style) | Checks a repository's C against a fixed-width integer style: no plain `int` or `uint32_t`, pointer stars on the type, byte-range loops on the 8-bit alias, with per-repository ABI exemptions and excludes |
 | [`uppercut-chiptune-synth`](packages/uppercut-chiptune-synth) | Deterministic chiptune audio for console homebrew: square, triangle and noise voices, envelopes, step sequencing, WAV and raw PCM output |
 | [`uppercut-gba-asset-export`](packages/uppercut-gba-asset-export) | Exports indexed pixel art for the Game Boy Advance: BGR555 palettes, 4bpp tiles, grit-style C files, 4bpp BMP, Butano JSON and GIMP palettes |
 | [`uppercut-gba-rom-verify`](packages/uppercut-gba-rom-verify) | Checks a built Game Boy Advance ROM and its ELF before release: logo, title, game and maker codes, header complement, size and alignment, with a SHA-256 to pin |
 | [`uppercut-godot-render`](packages/uppercut-godot-render) | Renders a Godot scene offline with Movie Maker and checks it: frame count, size, blank frames, per-frame hashes, bt709 H.264 and a JSON manifest |
-| [`uppercut-iso-normalize`](packages/uppercut-iso-normalize) | Makes a PlayStation 2 disc image byte-reproducible: fixed dates, ISO 9660 version suffixes and a checked SYSTEM.CNF and ELF |
+| [`uppercut-iso-normalize`](packages/uppercut-iso-normalize) | Builds a PlayStation 2 data disc from an ELF with pycdlib and makes disc images byte-reproducible: fixed dates, ISO 9660 version suffixes and a checked SYSTEM.CNF and ELF |
 | [`uppercut-iso9660`](packages/uppercut-iso9660) | Reads ISO 9660 disc images in 2048 and 2352-byte sectors: walks directories, extracts files with a SHA-256, finds a PS2 disc's SYSTEM.CNF and boot ELF |
 | [`uppercut-mgba-smoke`](packages/uppercut-mgba-smoke) | Runs a Game Boy Advance ROM in native mGBA in a sandbox: key taps, frame stepping, RAM probes, screenshots and Lua assertions, with the screenshots checked |
 | [`uppercut-pad-replay-tools`](packages/uppercut-pad-replay-tools) | Builds and checks controller replay files and capture scripts for game ports, and exports a replay as a Dolphin DTM |
 | [`uppercut-pcsx2-pine`](packages/uppercut-pcsx2-pine) | A client for PCSX2's PINE socket: PS2 memory reads and writes, batch reads, title, status, game id and save states, with an optional write allowlist |
+| [`uppercut-pinned-sources`](packages/uppercut-pinned-sources) | Fetches build inputs listed with a SHA-256 into a cache, refuses any mismatch, reuses an intact cache offline and reports what it fetched |
 | [`uppercut-pixel-art-sheets`](packages/uppercut-pixel-art-sheets) | Pillow helpers for indexed pixel-art sheets: palettes, pattern fills, a bitmap font and sheet packing |
 | [`uppercut-poly-meshes`](packages/uppercut-poly-meshes) | Regular-polyhedron meshes (exact vertices, exact hull, icosphere) and C-array emitters for float and fixed-point console layouts |
 | [`uppercut-port-proof`](packages/uppercut-port-proof) | The proof run of a recompiled game port: PPM frame dumps to PNG, frame MD5 comparison, WAV statistics, press scripts and a debug-socket driver |

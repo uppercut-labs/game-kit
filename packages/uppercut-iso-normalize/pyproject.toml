@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "uppercut-iso-normalize"
-version = "1.0.0"
-description = "Make a PlayStation 2 disc image byte-reproducible: fixed dates, ISO 9660 version suffixes and a checked SYSTEM.CNF and ELF."
+version = "1.1.0"
+description = "Build a PlayStation 2 data disc from an ELF and make disc images byte-reproducible: fixed dates, ISO 9660 version suffixes and a checked SYSTEM.CNF and ELF."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
 keywords = ["ps2", "playstation-2", "iso9660", "disc-image", "reproducible-builds", "homebrew"]
-dependencies = []
+dependencies = ["pycdlib>=1.14"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
