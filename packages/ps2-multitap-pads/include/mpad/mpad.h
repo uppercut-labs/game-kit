@@ -1,10 +1,12 @@
-/* ps2-multitap-pads: a poller for up to eight PlayStation 2 controllers through two multitaps. Part of ps2-multitap-pads 1.0.0 (MIT). */
+/* ps2-multitap-pads: a poller for up to eight PlayStation 2 controllers through two multitaps. Part of ps2-multitap-pads 1.1.0 (MIT). */
 #ifndef MPAD_H
 #define MPAD_H
 
 #include <stdint.h>
 
-#define MPAD_VERSION "1.0.0"
+#include "mpad/sample.h" /* MpadSample, the button bits and statuses */
+
+#define MPAD_VERSION "1.1.0"
 
 /* 64-byte alignment for the driver's buffers (C99 has no standard spelling). */
 #if defined(_MSC_VER)
@@ -24,42 +26,6 @@
 
 /* Endpoint number = port * 4 + slot: 0..3 on port 1, 4..7 on port 2. */
 #define MPAD_ENDPOINT(port, slot) ((uint8_t)((port) * MPAD_SLOTS + (slot)))
-
-/* The buttons in a sample's `held`, one bit each, set while pressed (the hardware reports them the other way round). */
-enum {
-    MPAD_SELECT = 0x0001,
-    MPAD_L3 = 0x0002,
-    MPAD_R3 = 0x0004,
-    MPAD_START = 0x0008,
-    MPAD_UP = 0x0010,
-    MPAD_RIGHT = 0x0020,
-    MPAD_DOWN = 0x0040,
-    MPAD_LEFT = 0x0080,
-    MPAD_L2 = 0x0100,
-    MPAD_R2 = 0x0200,
-    MPAD_L1 = 0x0400,
-    MPAD_R1 = 0x0800,
-    MPAD_TRIANGLE = 0x1000,
-    MPAD_CIRCLE = 0x2000,
-    MPAD_CROSS = 0x4000,
-    MPAD_SQUARE = 0x8000
-};
-
-/* What a poll says about one endpoint. */
-enum {
-    MPAD_ABSENT = 0, /* nothing there (or never opened): buttons none, sticks centred */
-    MPAD_FRESH = 1, /* a pad was read this frame: `held` and the sticks are real */
-    MPAD_UNREADABLE = 2 /* a pad is there but gave no sample this frame (still being found, switching mode): neutral */
-};
-
-typedef struct MpadSample {
-    uint16_t held;
-    uint8_t lx; /* left and right sticks, 0..255, centre 128; centred unless the pad is analog */
-    uint8_t ly;
-    uint8_t rx;
-    uint8_t ry;
-    uint8_t status; /* MPAD_ABSENT, MPAD_FRESH or MPAD_UNREADABLE */
-} MpadSample;
 
 /* The pad driver's state for an endpoint, as the poller sees it. The PS2SDK glue maps libpad's PAD_STATE_* onto these. */
 enum {

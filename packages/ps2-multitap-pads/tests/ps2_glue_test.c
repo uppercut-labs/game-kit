@@ -1,13 +1,17 @@
-/* ps2_glue_test: src/ps2.c built against stand-in SDK headers (tests/ps2sdk-stub) with fake SDK functions. It checks
- * the glue's own work: the order modules load in, the failure codes, the state and sample mapping. It does not run the
- * real PS2SDK or a console. */
+/* ps2_glue_test: src/ps2.c, src/ps2_bin2c.c and src/ps2_program.c built against stand-in SDK headers
+ * (tests/ps2sdk-stub) with fake SDK functions. It checks the glue's own work: the order modules load in, the failure
+ * codes, the state and sample mapping, the IOP reset sequence and the whole-program poller. It does not run the real
+ * PS2SDK or a console. */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
+#include <iopcontrol.h>
 #include <libmtap.h>
 #include <libpad.h>
 #include <loadfile.h>
+#include <sbv_patches.h>
+#include <sifrpc.h>
 
 #include "mpad/ps2.h"
 
@@ -29,7 +33,10 @@ static const void *loaded[8];
 static int loaded_n;
 static int fail_load_index = -1, load_status;
 static int mtap_init_result = 1, pad_init_result = 1, mtap_inits, pad_inits;
-static int events[32], event_n; /* 1 = module, 2 = mtapInit, 3 = padInit, 4 = mtapPortOpen, 5 = padPortOpen */
+/* 1 = module, 2 = mtapInit, 3 = padInit, 4 = mtapPortOpen, 5 = padPortOpen,
+   6 = sceSifInitRpc, 7 = SifIopReset, 8 = SifIopSync, 9 = sbv_patch_enable_lmb */
+static int events[64], event_n;
+static int reset_failures, sync_failures; /* how many times SifIopReset and SifIopSync say "not yet" first */
 static int sdk_state[2][4];
 static struct padButtonStatus sdk_status[2][4];
 static unsigned char sdk_bytes[2][4];
@@ -99,6 +106,41 @@ int padSetMainMode(int port, int slot, int mode, int lock)
     return sdk_set_result;
 }
 
+void sceSifInitRpc(int mode)
+{
+    (void)mode;
+    events[event_n++] = 6;
+}
+int SifIopReset(const char *arg, int mode)
+{
+    (void)arg;
+    (void)mode;
+    events[event_n++] = 7;
+    if (reset_failures) {
+        reset_failures--;
+        return 0;
+    }
+    return 1;
+}
+int SifIopSync(void)
+{
+    events[event_n++] = 8;
+    if (sync_failures) {
+        sync_failures--;
+        return 0;
+    }
+    return 1;
+}
+int sbv_patch_enable_lmb(void)
+{
+    events[event_n++] = 9;
+    return 0;
+}
+
+/* the program's bin2c arrays, as `bin2c` would name them */
+unsigned char sio2man_irx[4], mtapman_irx[4], padman_irx[4];
+unsigned int size_sio2man_irx = 4, size_mtapman_irx = 4, size_padman_irx = 4;
+
 static unsigned char irx_a[4], irx_b[4], irx_c[4];
 static MpadPoller poller;
 
@@ -111,6 +153,7 @@ static void reset(void)
     mtap_init_result = pad_init_result = 1;
     mtap_inits = pad_inits = 0;
     event_n = 0;
+    reset_failures = sync_failures = 0;
     memset(sdk_state, 0, sizeof(sdk_state));
     memset(sdk_status, 0, sizeof(sdk_status));
     memset(sdk_bytes, 0, sizeof(sdk_bytes));
@@ -238,10 +281,78 @@ static void test_mapping(void)
           "mode request: %d call(s), mode %d lock %d", sdk_set_calls, sdk_set_mode, sdk_set_lock);
 }
 
+static void test_reset_iop(void)
+{
+    static const int expected[] = { 6, 7, 7, 7, 8, 8, 6, 9 };
+    int i, same = 1;
+
+    reset();
+    reset_failures = 2;
+    sync_failures = 1;
+    mpad_ps2_reset_iop();
+    for (i = 0; i < (int)(sizeof(expected) / sizeof(expected[0])); i++) {
+        if (i >= event_n || events[i] != expected[i]) {
+            same = 0;
+        }
+    }
+    CHECK(same && event_n == (int)(sizeof(expected) / sizeof(expected[0])),
+          "SIF RPC, reset until accepted, sync until done, SIF RPC again, then the loader patch (%d events)", event_n);
+}
+
+static void test_program(void)
+{
+    MpadSample s[MPAD_ENDPOINTS];
+    int i, all_absent = 1;
+
+    /* before anything is open, every endpoint is absent and centred */
+    reset();
+    mpad_ps2_poll_all(s);
+    for (i = 0; i < MPAD_ENDPOINTS; i++) {
+        if (s[i].status != MPAD_ABSENT || s[i].held || s[i].lx != MPAD_AXIS_CENTER || s[i].ry != MPAD_AXIS_CENTER) {
+            all_absent = 0;
+        }
+    }
+    CHECK(all_absent && event_n == 0, "poll before open: all absent, no SDK call");
+
+    /* a failed start is the failure code, and the poller stays absent */
+    fail_load_index = 0;
+    CHECK(mpad_ps2_open_all(0) == MPAD_PS2_SIO2MAN_FAILED, "open_all passes the failure code through");
+    CHECK(!mpad_is_open(mpad_ps2_poller(), 0), "nothing opened");
+
+    /* the bin2c arrays are the modules it loads, in order, and every endpoint opens */
+    reset();
+    CHECK(mpad_ps2_open_all(0) == 8, "open_all: eight endpoints");
+    CHECK(loaded_n == 3 && loaded[0] == sio2man_irx && loaded[1] == mtapman_irx && loaded[2] == padman_irx,
+          "the bin2c modules, sio2man then mtapman then padman");
+    CHECK(mpad_is_open(mpad_ps2_poller(), 7), "the static poller is the one that opened");
+
+    /* poll_all reads every endpoint through it: port 2 slot 1 is endpoint 4 */
+    sdk_state[1][0] = PAD_STATE_STABLE;
+    sdk_bytes[1][0] = 8;
+    sdk_status[1][0].mode = (unsigned char)(PAD_TYPE_DUALSHOCK << 4 | 4);
+    sdk_status[1][0].btns = (unsigned short)~(PAD_START | PAD_CROSS);
+    sdk_status[1][0].ljoy_h = 1;
+    sdk_status[1][0].ljoy_v = 2;
+    sdk_status[1][0].rjoy_h = 3;
+    sdk_status[1][0].rjoy_v = 4;
+    mpad_ps2_poll_all(s);
+    CHECK(s[4].status == MPAD_FRESH && s[4].held == (MPAD_START | MPAD_X) && s[4].lx == 1 && s[4].ly == 2 &&
+              s[4].rx == 3 && s[4].ry == 4,
+          "endpoint 4: status %u held %04x", s[4].status, s[4].held);
+    CHECK(s[0].status == MPAD_ABSENT && s[7].status == MPAD_ABSENT, "the others are absent");
+
+    /* endpoints that fail to open are counted */
+    reset();
+    sdk_pad_open_result = 0;
+    CHECK(mpad_ps2_open_all(0) == 0, "no pad opens: zero, not a failure code");
+}
+
 int main(void)
 {
     test_start();
     test_mapping();
+    test_reset_iop();
+    test_program();
     printf("ps2_glue_test: %d checks, %d failures\n", checks, failures);
     return failures ? 1 : 0;
 }

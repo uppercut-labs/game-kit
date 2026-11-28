@@ -3,15 +3,19 @@
 #   Standalone:   cmake -S packages/ps2-multitap-pads -B build-mpad -G Ninja && cmake --build build-mpad && ctest --test-dir build-mpad
 #   In a project: add_subdirectory(<path>/ps2-multitap-pads)   then   target_link_libraries(my-test PRIVATE mpad)
 #                 or fetch it at a tag with FetchContent (examples/consumer/CMakeLists.txt).
-#   On the console: the PS2SDK's own Makefile builds src/mpad.c and src/ps2.c (and src/ps2_bin2c.c); see README.md.
+#   On the console: the PS2SDK's own Makefile builds src/mpad.c and src/ps2.c (and src/ps2_bin2c.c, src/ps2_program.c);
+#                   see README.md.
 #
-# The library `mpad` is the poller only (src/mpad.c): no console calls, builds anywhere. The PS2SDK glue is not part of
-# it. With -DMPAD_PS2_GLUE=ON (inside a PS2SDK CMake toolchain) the library `mpad_ps2` is added.
+# The library `mpad` is the poller only (src/mpad.c): no console calls, builds anywhere. Its headers mpad/sample.h and
+# mpad/padr.h need no PS2SDK either. The PS2SDK glue is not part of it. With -DMPAD_PS2_GLUE=ON (inside a PS2SDK CMake
+# toolchain) the libraries `mpad_ps2` and `mpad_ps2_program` are added.
 #
 # Variables it gives the including project:
 #   MPAD_VERSION   the library's version
 # Options: MPAD_ENABLE_TESTS (ctest entries when included in another project; always on standalone).
-#          MPAD_PS2_GLUE     add the `mpad_ps2` library (needs the PS2SDK headers). Off by default.
+#          MPAD_PS2_GLUE     add the `mpad_ps2` and `mpad_ps2_program` libraries (need the PS2SDK). Off by default.
+#          MPAD_TEST_PADR    test mpad/padr.h against pad-replay (from the checkout beside this package, else fetched at
+#                            its release tag). On by default.
 cmake_minimum_required(VERSION 3.20)
 if(NOT PROJECT_NAME)
   project(ps2_multitap_pads LANGUAGES C)
@@ -39,6 +43,12 @@ if(MPAD_PS2_GLUE)
   add_library(mpad::mpad_ps2 ALIAS mpad_ps2)
   target_link_libraries(mpad_ps2 PUBLIC mpad)
   set_target_properties(mpad_ps2 PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
+
+  # the whole-program helpers: needs the program's bin2c module arrays, and -lpatches
+  add_library(mpad_ps2_program STATIC src/ps2_bin2c.c src/ps2_program.c)
+  add_library(mpad::mpad_ps2_program ALIAS mpad_ps2_program)
+  target_link_libraries(mpad_ps2_program PUBLIC mpad_ps2)
+  set_target_properties(mpad_ps2_program PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
 endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR MPAD_ENABLE_TESTS)
@@ -53,8 +63,44 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR MPAD_ENABLE_TESTS)
   endif()
   add_test(NAME mpad-test COMMAND mpad-test)
 
+  # mpad/sample.h alone, with the short names: no poller, no SDK
+  add_executable(mpad-names-test tests/mpad_names_test.c)
+  target_include_directories(mpad-names-test PRIVATE include)
+  set_target_properties(mpad-names-test PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
+  if(NOT MSVC)
+    target_compile_options(mpad-names-test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  endif()
+  add_test(NAME mpad-names-test COMMAND mpad-names-test)
+
+  # mpad/padr.h through pad-replay's parse and format
+  option(MPAD_TEST_PADR "test mpad/padr.h against pad-replay" ON)
+  if(MPAD_TEST_PADR)
+    if(NOT TARGET padr)
+      include(FetchContent)
+      set(MPAD_PAD_REPLAY_TAG "pad-replay@1.0.0" CACHE STRING "The pad-replay release tag to fetch for the test")
+      get_filename_component(_mpad_kit_root "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+      if(NOT DEFINED FETCHCONTENT_SOURCE_DIR_PAD_REPLAY AND EXISTS "${_mpad_kit_root}/packages/pad-replay/CMakeLists.txt")
+        set(FETCHCONTENT_SOURCE_DIR_PAD_REPLAY "${_mpad_kit_root}" CACHE PATH "pad-replay from the checkout beside this package")
+      endif()
+      FetchContent_Declare(pad_replay
+        GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
+        GIT_TAG        ${MPAD_PAD_REPLAY_TAG}
+        GIT_SHALLOW    TRUE
+        SOURCE_SUBDIR  packages/pad-replay)
+      FetchContent_MakeAvailable(pad_replay)
+    endif()
+    add_executable(mpad-padr-test tests/mpad_padr_test.c)
+    target_include_directories(mpad-padr-test PRIVATE include)
+    target_link_libraries(mpad-padr-test PRIVATE padr)
+    set_target_properties(mpad-padr-test PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
+    if(NOT MSVC)
+      target_compile_options(mpad-padr-test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
+    add_test(NAME mpad-padr-test COMMAND mpad-padr-test)
+  endif()
+
   # the PS2SDK glue, built against stand-in headers and fake SDK functions: its mapping, not the real SDK
-  add_executable(mpad-ps2-glue-test tests/ps2_glue_test.c src/ps2.c)
+  add_executable(mpad-ps2-glue-test tests/ps2_glue_test.c src/ps2.c src/ps2_bin2c.c src/ps2_program.c)
   target_include_directories(mpad-ps2-glue-test PRIVATE tests/ps2sdk-stub)
   target_link_libraries(mpad-ps2-glue-test PRIVATE mpad)
   set_target_properties(mpad-ps2-glue-test PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)

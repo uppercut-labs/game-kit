@@ -5,9 +5,10 @@ fixed-point math, 32-bit FNV-1a hashing and a one-word xorshift32 random number 
 only, so the same inputs give the same outputs on every compiler, CPU and console. That is what lets a replay, a
 network lockstep or a regression hash of a whole run be trusted.
 
-Nothing in this package knows any game, and it includes no platform headers: only `<stddef.h>` and `<stdint.h>`.
+Nothing in this package knows any game. It includes only `<stddef.h>` and `<stdint.h>`, unless a console build asks
+for the SDK's own short type names with `DET_SDK_TYPES` (below).
 
-Version 1.0.0. Header-only C (C99) with CMake. MIT licence.
+Version 1.1.0. Header-only C (C99) with CMake. MIT licence.
 
 ## Install
 
@@ -18,7 +19,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(det_core
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        det-core@1.0.0
+  GIT_TAG        det-core@1.1.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/det-core)
 FetchContent_MakeAvailable(det_core)
@@ -38,9 +39,36 @@ uses `add_subdirectory(<path>/det-core)`. A build system other than CMake only n
 
 - `DET_STATIC_ASSERT(name, condition)`: a C99 compile-time assert (a typedef with a negative array size).
 - `DET_VERSION`: the package version as a string.
-- `u8 i8 u16 i16 u32 i32 u64 i64`: short aliases for the `<stdint.h>` types, and only when `DET_SHORT_TYPES` is
-  defined before the first include (a project with its own typedefs would otherwise collide). They are checked
-  with `DET_STATIC_ASSERT` to have the right size.
+- `u8 i8 u16 i16 u32 i32 u64 i64`: short names for the exact-width types, only when `DET_SHORT_TYPES` or
+  `DET_SDK_TYPES` is defined before the first include (a project with its own typedefs would otherwise collide).
+  They are checked with `DET_STATIC_ASSERT` to have the right size.
+
+#### Short names from a console SDK
+
+`DET_SHORT_TYPES` makes every short name the `<stdint.h>` type. That is the wrong choice on a console whose SDK
+headers declare `u32` and friends themselves: the two definitions collide, or the SDK's `u32` is `unsigned int` where
+`uint32_t` is `unsigned long`, so a pointer passed to an SDK call stops type-checking. `DET_SDK_TYPES` (which implies
+`DET_SHORT_TYPES`) takes the names from the SDK on the consoles that have them:
+
+| Build | Detected by | `u8`..`u64` | `i8`..`i64` |
+| --- | --- | --- | --- |
+| PlayStation 2 EE (PS2SDK) | `_EE` | `<tamtypes.h>` | `s8`..`s64` from `<tamtypes.h>` |
+| GameCube and Wii (libogc) | `GEKKO` | `<gctypes.h>` | `int8_t`..`int64_t` |
+| PSP (PSPSDK) | `__PSP__` or `__psp__` | `<psptypes.h>` | `int8_t`..`int64_t` |
+| anything else | | `uint8_t`..`uint64_t` | `int8_t`..`int64_t` |
+
+The usual way to use it is one compile definition for the whole project, so every file sees the same names:
+
+```make
+EE_CFLAGS += -DDET_SDK_TYPES        # PS2SDK Makefile
+```
+```cmake
+target_compile_definitions(my-game PRIVATE DET_SDK_TYPES)
+```
+
+then `#include "det/types.h"` (or `det/det.h`) wherever the short names are used. A file that also includes the SDK
+header sees the SDK's own definitions, so there is nothing to collide with. Without either macro, `det/types.h`
+defines no short names and includes no SDK header.
 
 ### `det/fixed.h`: Q16.16 in an `int32_t`
 
@@ -114,12 +142,13 @@ differed in small ways. Where they did, this is the version kept:
 ## Layout
 
 ```
-include/det/types.h    fixed-width aliases and DET_STATIC_ASSERT
+include/det/types.h    fixed-width aliases (plain or from the console SDK) and DET_STATIC_ASSERT
 include/det/fixed.h    Q16.16
 include/det/hash.h     FNV-1a
 include/det/rng.h      xorshift32
 include/det/det.h      all four
 tests/                 one test per header, C99 -Wall -Wextra -Wpedantic -Werror
+tests/sdk-stub/        stand-in tamtypes.h, gctypes.h and psptypes.h for the DET_SDK_TYPES test
 examples/consumer/     a project using the package at a tag
 ```
 
@@ -131,8 +160,20 @@ examples/consumer/     a project using the package at a tag
 ```
 
 or `./tools/check-c.sh` from the game-kit root. The tests need no display, hardware or network. They pin the FNV-1a
-test vectors, the xorshift32 sequence, saturation at every edge and a floor/round/truncate table, and the example
-consumer checks that a seeded run replays bit for bit.
+test vectors, the xorshift32 sequence, saturation at every edge and a floor/round/truncate table. The
+`DET_SDK_TYPES` test is built four times, as a PS2, GameCube, PSP and host build against stand-in SDK headers, and checks
+where each short name came from. The example consumer checks that a seeded run replays bit for bit.
+
+## Tested
+
+At 1.1.0:
+
+| System | Toolchain | Result |
+| --- | --- | --- |
+| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja 1.13.2, `tools/check-c.sh` | pass |
+| Linux arm64 (Debian trixie, in a container) | gcc 14.2 and clang 19.1; gcc under AddressSanitizer and UBSan | pass |
+| PlayStation 2: a PS2SDK image, mips64r5900el-ps2-elf-gcc | `DET_SDK_TYPES` with the real `tamtypes.h`, `-std=c99 -Wpedantic -Werror`: `i32` is `s32` and `u64` is the SDK's `u64` (on this SDK `int32_t` is `long` and `s32` is `int`, so the plain names would not match) | compiles |
+| GameCube: devkitPPC (powerpc-eabi-gcc 16.2.0) with libogc | `DET_SDK_TYPES` with the real `gctypes.h`, `-std=c99 -Wpedantic -Werror` | compiles |
 
 ## Licence
 

@@ -1,4 +1,4 @@
-/* The PS2SDK side of ps2-multitap-pads: libpad and libmtap behind the MpadOps table. Part of ps2-multitap-pads 1.0.0 (MIT).
+/* The PS2SDK side of ps2-multitap-pads: libpad and libmtap behind the MpadOps table. Part of ps2-multitap-pads 1.1.0 (MIT).
  *
  * Compile src/ps2.c only with the PS2SDK (the pad poller itself, src/mpad.c, builds anywhere). Link -lpadx -lmtap
  * (or -lpad -lmtap).
@@ -12,7 +12,8 @@
  *     sceSifInitRpc(0);
  *     sbv_patch_enable_lmb();      // lets SifExecModuleBuffer load a module from memory
  *
- * then calls mpad_ps2_start(), then loads whatever other IOP modules it wants. This glue loads three modules, sio2man,
+ * then calls mpad_ps2_start(), then loads whatever other IOP modules it wants. mpad_ps2_reset_iop() below is those five
+ * lines, for a program that wants them from here; it is still the program that decides to call it, and when. This glue loads three modules, sio2man,
  * mtapman and padman, from buffers the caller supplies. It carries no IRX binary: they come from the PS2SDK
  * (the .irx files under iop/irx), usually turned into C arrays by `bin2c`.
  */
@@ -61,5 +62,25 @@ extern unsigned int size_sio2man_irx;
 extern unsigned int size_mtapman_irx;
 extern unsigned int size_padman_irx;
 int mpad_ps2_start_bin2c(MpadPoller *poller, uint8_t search_grace);
+
+/*
+ * For a program that owns the whole machine (src/ps2_program.c, with src/ps2_bin2c.c; link -lpatches too).
+ *
+ * mpad_ps2_reset_iop: the IOP reset, SIF RPC setup and loader patch shown at the top of this file. Call it once, first,
+ * before any IOP module is loaded: it unloads everything on the IOP.
+ *
+ * mpad_ps2_open_all: mpad_ps2_start_bin2c on a poller this file keeps in static storage. It prints one line for a
+ * failed start ("Controller start failed (code N)") and one per endpoint that did not open ("Controller port P slot S
+ * failed to open"). Returns the number of endpoints that opened (0..8), or an MPAD_PS2_* failure.
+ *
+ * mpad_ps2_poll_all: one frame for all eight endpoints from that poller, `out` indexed port * 4 + slot. Before
+ * mpad_ps2_open_all, or after it failed, every sample is MPAD_ABSENT with centred sticks.
+ *
+ * mpad_ps2_poller: that poller, for mpad_is_open and the rest of mpad/mpad.h.
+ */
+void mpad_ps2_reset_iop(void);
+int mpad_ps2_open_all(uint8_t search_grace);
+void mpad_ps2_poll_all(MpadSample out[MPAD_ENDPOINTS]);
+MpadPoller *mpad_ps2_poller(void);
 
 #endif

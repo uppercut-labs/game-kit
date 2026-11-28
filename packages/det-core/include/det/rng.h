@@ -1,4 +1,4 @@
-/* det-core: xorshift32 random numbers. Part of det-core 1.0.0 (MIT). */
+/* det-core: xorshift32 random numbers. Part of det-core 1.1.0 (MIT). */
 #ifndef DET_RNG_H
 #define DET_RNG_H
 
@@ -13,7 +13,7 @@
  *   det_rng rng = det_rng_seed(1234u);
  *   int32_t die = det_rng_range_i32(&rng, 1, 6);
  *
- * The sequence for a given seed is fixed by this file and will not change in a 0.x release. Do not mix it with
+ * The sequence for a given seed is fixed by this file and will not change within a major version. Do not mix it with
  * another generator when replays must match.
  */
 typedef uint32_t det_rng;
