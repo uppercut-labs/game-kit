@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uppercut-c-style"
+version = "1.0.0"
+description = "A fixed-width C style check: integer spellings, pointer stars on the type and bounded byte-range loops, configured per repository."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Uppercut Labs", email = "packages@uppercut-labs.com" }]
+keywords = ["c", "lint", "style", "fixed-width-types", "homebrew", "console"]
+dependencies = ["tomli>=1.1; python_version < '3.11'"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: C",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Quality Assurance",
+  "Typing :: Typed",
+]
+
+[project.scripts]
+uppercut-c-style = "uppercut_c_style.cli:main"
+
+[project.urls]
+Source = "https://github.com/uppercut-labs/game-kit/tree/main/packages/uppercut-c-style"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uppercut_c_style"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md"]
