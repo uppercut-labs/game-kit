@@ -1,6 +1,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ownedPids, privateProfileDir, stopOwned, waitFor } from '../src/index.js';
 import { fakeEmulator, isAlive, scratch } from './support.js';
@@ -62,9 +63,10 @@ describe('waitFor', () => {
 describe('privateProfileDir', () => {
   it('makes a new folder each time', async () => {
     const base = await scratch();
-    const one = await privateProfileDir(`${base}/work`, 'psp');
-    const two = await privateProfileDir(`${base}/work`, 'psp');
+    const work = path.join(base, 'work');
+    const one = await privateProfileDir(work, 'psp');
+    const two = await privateProfileDir(work, 'psp');
     expect(one).not.toBe(two);
-    expect(one.startsWith(`${base}/work/psp-`)).toBe(true);
+    expect(one.startsWith(path.join(work, 'psp-'))).toBe(true);
   });
 });
