@@ -4,7 +4,7 @@ Small, focused packages from Uppercut Labs for making, porting, testing and capt
 
 ## Packages
 
-Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs`, Python packages are on PyPI with the `uppercut-` prefix, and C and Swift packages are released as git tags `<name>@1.0.0` in this repository.
+Every package is at version 1.0.0 or later; each README gives its current version. npm packages are on npm under `@uppercut-labs`, Python packages are on PyPI with the `uppercut-` prefix, and C and Swift packages are released as git tags `<name>@<version>` in this repository.
 
 ### TypeScript
 
@@ -41,7 +41,7 @@ Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs
 | Package | What it does |
 | --- | --- |
 | [`bitmap-font`](packages/bitmap-font) | Small bitmap fonts (5x7, 8x8 and 3x5 title letters) as tables, drawn through a callback per run of pixels, generated from one data file for C and Python |
-| [`det-core`](packages/det-core) | The deterministic numeric core of a game simulation: exact-width types, saturating Q16.16 fixed point, FNV-1a and xorshift32, integer only |
+| [`det-core`](packages/det-core) | The deterministic numeric core of a game simulation: exact-width types (optionally the console SDK's own), saturating Q16.16 fixed point, FNV-1a and xorshift32, integer only |
 | [`gba-tile-ui`](packages/gba-tile-ui) | Shadow tile maps and sprite table for a Game Boy Advance game, copied to VRAM and OAM once a frame when dirty, so screen code is tested on a host |
 | [`kos-naomi-cabinet`](packages/kos-naomi-cabinet) | What a Sega NAOMI game built with KallistiOS needs from the cabinet: EEPROM settings the BIOS accepts, coin credits, test and service switch edges, and a save-block adapter, all tested without a cabinet |
 | [`libretro-guest-probe`](packages/libretro-guest-probe) | Runs a libretro core with no window or audio, feeds it scripted pad input and reads guest memory, so a test proves a port's input on an emulator core |
@@ -50,7 +50,8 @@ Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs
 | [`port-input-harness`](packages/port-input-harness) | Tests a game port's controller handling with SDL3 virtual controllers (DualSense, Xbox, Switch Pro, Steam Deck and more as data), hot-plug, scripts and pass/fail runners |
 | [`port-sdl-input`](packages/port-sdl-input) | The SDL3 input layer for a game port: every keyboard and controller at once, positional mappings, two players with pinning and swap, SOCD cleaning, remapping, rumble and prompt letters |
 | [`port-settings`](packages/port-settings) | A key-value settings file for a game port: keeps key order, saves through a temporary file, reads typed values and UTF-8 paths on Windows |
-| [`ps2-multitap-pads`](packages/ps2-multitap-pads) | Reads up to eight PlayStation 2 controllers through two multitaps once a frame, with a grace period for loose plugs and DualShock mode switching |
+| [`ps2-audsrv-stream`](packages/ps2-audsrv-stream) | Starts the PlayStation 2's audsrv from an embedded module and keeps its ring fed once a frame from a callback that renders 16-bit stereo, with timed mutes for cuts |
+| [`ps2-multitap-pads`](packages/ps2-multitap-pads) | Reads up to eight PlayStation 2 controllers through two multitaps once a frame, with a grace period for loose plugs, DualShock mode switching, the button names without the PS2SDK and a pad-replay name table |
 | [`save-block`](packages/save-block) | Saved data that survives a power cut, a wrong disc and a bad card: two alternating checksummed, versioned slots, each save read back before it counts |
 | [`sgdk-host-stub`](packages/sgdk-host-stub) | Builds a Mega Drive game's logic with a host compiler and runs it under ctest: a stub genesis.h records tiles, palettes, sprites, sound, SRAM and pad reads |
 

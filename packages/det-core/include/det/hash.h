@@ -1,4 +1,4 @@
-/* det-core: 32-bit FNV-1a. Part of det-core 1.0.0 (MIT). */
+/* det-core: 32-bit FNV-1a. Part of det-core 1.1.0 (MIT). */
 #ifndef DET_HASH_H
 #define DET_HASH_H
 
