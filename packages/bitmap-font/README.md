@@ -1,8 +1,8 @@
 # bitmap-font
 
-Small bitmap fonts as tables, with a callback to draw them. Three fonts (5x7, 8x8, and 3x5 title letters) are written once, in `data/bitmap-fonts.txt`; a generator turns that file into the C header the library compiles, into a standalone C array a project can vendor, and into the Python table that `uppercut-pixel-art-sheets` uses. A glyph is drawn by calling a function of yours once per run of set pixels, so the same table works with a framebuffer, a sprite batch or a GPU quad.
+Small bitmap fonts as tables, with a callback to draw them. Three fonts (5x7, 8x8 and 3x5) are written once, in `data/bitmap-fonts.txt`; a generator turns that file into the C header the library compiles, into a standalone C array a project can vendor, and into the Python table that `uppercut-pixel-art-sheets` uses. A glyph is drawn by calling a function of yours once per run of set pixels, so the same table works with a framebuffer, a sprite batch or a GPU quad.
 
-Nothing here allocates or depends on a graphics library. Version 1.0.0. Written in C99 with CMake; the generator is Python 3 (standard library only). MIT licence.
+Nothing here allocates or depends on a graphics library. Version 1.1.0. Written in C99 with CMake; the generator is Python 3 (standard library only). MIT licence.
 
 ## Install
 
@@ -12,7 +12,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(bitmap_font
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        bitmap-font@1.0.0
+  GIT_TAG        bitmap-font@1.1.0
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/bitmap-font)
 FetchContent_MakeAvailable(bitmap_font)
@@ -54,7 +54,7 @@ Draw an outline or a shadow by drawing the string again, one pixel over, in anot
 | --- | --- | --- | --- |
 | 5x7 | 67: ASCII 32 to 126 without lowercase and braces | 6 | Capitals, digits and punctuation. The table most game code wants. |
 | 8x8 | 64: ASCII 32 to 95 | 8 | Capitals, digits and symbols, drawn about six pixels wide inside the cell so there is room for an outline. One source, so nothing to reconcile. |
-| 3x5 | 12: `! A B D E H I L P T U X` | 4 | Block letters for a title screen. |
+| 3x5 | 67: the same codes as the 5x7 font | 4 | Capitals, digits and punctuation for text that must stay one font pixel to one screen pixel on a low-resolution display, such as a HUD on a 320x240 framebuffer. |
 
 ## One source, three outputs
 
@@ -248,6 +248,19 @@ Who changes: the Dreamcast generator redraws 7 glyphs (`#`, `%`, `,`, `/`, `?`, 
 
 In the 3x5 set, the Dreamcast title letters and the title letters of three other consoles' title screens agree on every letter they share except `P`: the three screens draw it with an open bowl (`##.`, `#.#`, `##.`, `#..`, `#..`) and the Dreamcast version with a closed one (`###`, `#.#`, `###`, `#..`, `#..`). The open bowl is kept, as the majority. The 3x5 `X` comes from the Dreamcast version alone.
 
+Version 1.1.0 completed the 3x5 font with the other 55 codes the 5x7 font has, so it can set whole lines of HUD text. The twelve title letters keep their 1.0.0 shapes. The new glyphs were drawn for this package. Three columns leave little room, so a few letters differ from their neighbours by two pixels rather than one:
+
+```
+M      N      W      O      0      Q      %
+###    ##.    #.#    .#.    ###    .#.    #.#
+###    #.#    #.#    #.#    #.#    #.#    ..#
+#.#    #.#    #.#    #.#    #.#    #.#    .#.
+#.#    #.#    ###    #.#    #.#    ##.    #..
+#.#    #.#    #.#    .#.    ###    .##    #.#
+```
+
+`M` fills its top two rows and `N` is open at the top right, so neither reads as `H`; `W` puts its bar one row below the bar of `H`; `O` is round and `0` is square.
+
 The 8x8 table is the 32X HUD's, unchanged: no other 8x8 table exists to compare it with.
 
 ## Python side
@@ -263,13 +276,17 @@ The 8x8 table is the 32X HUD's, unchanged: no other 8x8 table exists to compare 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 1.0.0:
+Tested:
 
-| System | Toolchain | Result |
-| --- | --- | --- |
-| Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `./tools/check-c.sh` from the repository root; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
-| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
-| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
+| Version | System | Toolchain | Result |
+| --- | --- | --- | --- |
+| 1.1.0 | Linux arm64 (Ubuntu 22.04, in a container) | gcc 11.4, CMake 3.22, `build-and-test.sh`; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
+| 1.1.0 | Linux arm64 (Debian 13, in a container) | gcc 14.2.0 and clang 19.1.7, CMake, Ninja, `build-and-test.sh` in the packed source | pass |
+| 1.1.0 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, `build-and-test.ps1` in the packed source | pass |
+| 1.1.0 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `build-and-test.sh` in the repository and in the packed source, and the example consumer | pass |
+| 1.0.0 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `./tools/check-c.sh` from the repository root; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
+| 1.0.0 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| 1.0.0 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
 Build and run the tests, from this folder:
 

@@ -1,6 +1,6 @@
 /* bitmap-font: small bitmap fonts as tables, with a callback to draw them.
  *
- * Three fonts come from one source file (data/bitmap-fonts.txt): 5x7, 8x8 and a 3x5 set of title letters. Each is a table
+ * Three fonts come from one source file (data/bitmap-fonts.txt): 5x7, 8x8 and 3x5. Each is a table
  * of row bytes: a glyph is `height` bytes, one per row, and pixel x of a row is set when bit (width - 1 - x) is. The
  * tables are generated into bfont_tables.h; nothing here allocates, and nothing depends on a graphics library.
  *
@@ -11,7 +11,7 @@
 #ifndef BFONT_H
 #define BFONT_H
 
-#define BFONT_VERSION "1.0.0"
+#define BFONT_VERSION "1.1.0"
 
 #ifdef __cplusplus
 extern "C" {
