@@ -281,6 +281,8 @@ Tested:
 | Version | System | Toolchain | Result |
 | --- | --- | --- | --- |
 | 1.1.0 | Linux arm64 (Ubuntu 22.04, in a container) | gcc 11.4, CMake 3.22, `build-and-test.sh`; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
+| 1.1.0 | Linux arm64 (Debian 13, in a container) | gcc 14.2.0 and clang 19.1.7, CMake, Ninja, `build-and-test.sh` in the packed source | pass |
+| 1.1.0 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, `build-and-test.ps1` in the packed source | pass |
 | 1.1.0 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `build-and-test.sh` in the repository and in the packed source, and the example consumer | pass |
 | 1.0.0 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `./tools/check-c.sh` from the repository root; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
 | 1.0.0 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
