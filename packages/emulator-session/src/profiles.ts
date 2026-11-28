@@ -115,6 +115,46 @@ const pcsx2: EmulatorProfile = {
     'file: copy them in with `seedFiles`. No launch-time mute is known.',
 };
 
+const dolphin: EmulatorProfile = {
+  id: 'dolphin',
+  label: 'Dolphin',
+  windowOwner: 'Dolphin',
+  args: ['--user', '{profileDir}', '--batch', '{settings}', '{extra}', '--exec', '{content}'],
+  settings: { kind: 'flags', flag: ['--config', '{key}={value}'] },
+  defaults: { 'Dolphin.Interface.ConfirmStop': 'False' },
+  mute: { 'Dolphin.DSP.Backend': 'No Audio Output', 'Dolphin.DSP.Volume': 0 },
+  unmute: { 'Dolphin.DSP.Backend': 'Cubeb', 'Dolphin.DSP.Volume': 100 },
+  muteEnv: { SDL_AUDIODRIVER: 'dummy' },
+  background: { 'Dolphin.Interface.PauseOnFocusLost': 'False', 'Dolphin.Input.BackgroundInput': 'True' },
+  bootLatencySec: 3,
+  notes:
+    'The profile folder is Dolphin\'s user folder (`--user`), so its settings, logs and dumps stay in it. A setting key is ' +
+    '`System.Section.Key` as Dolphin spells it, for example `GFX.Settings.AspectRatio`, passed with `--config`. ' +
+    '`content` is the one file to boot with `--exec` (a DOL, an ELF or a disc image). `Interface.ConfirmStop` is off, so ' +
+    'SIGTERM ends it at once instead of asking. Its log lines, OSReport included, go to stderr. `dolphinOptions` adds ' +
+    'the graphics and log files, the dumps and DTM movie playback.',
+};
+
+const xemu: EmulatorProfile = {
+  id: 'xemu',
+  label: 'xemu',
+  windowOwner: 'xemu',
+  args: ['-config_path', '{profileDir}/xemu.toml', '{extra}', '-dvd_path', '{content}'],
+  settings: { kind: 'file', path: 'xemu.toml', format: 'toml' },
+  defaults: { 'general/show_welcome': false, 'general/skip_boot_anim': true },
+  mute: { 'audio/volume_limit': 0 },
+  unmute: { 'audio/volume_limit': 1 },
+  muteEnv: { SDL_AUDIODRIVER: 'dummy' },
+  background: { 'input/background_input_capture': true },
+  env: { CFFIXED_USER_HOME: '{profileDir}' },
+  bootLatencySec: 3,
+  notes:
+    'Settings go in `xemu.toml` in the profile folder, passed with `-config_path`. A setting key is `table/name`, for ' +
+    'example `display.ui/aspect_ratio`, and values are written as TOML. `content` is one XISO for `-dvd_path`. The ' +
+    'flash, hard disk and EEPROM images are the caller\'s: `xemuOptions` seeds them into the profile folder and points ' +
+    'the settings at them. CFFIXED_USER_HOME points at the profile folder so xemu keeps its other files there.',
+};
+
 /** Every built-in profile, by id. */
 export const profiles: Readonly<Record<string, EmulatorProfile>> = {
   ares,
@@ -124,6 +164,8 @@ export const profiles: Readonly<Record<string, EmulatorProfile>> = {
   ppsspp,
   'duckstation-regtest': duckstationRegtest,
   pcsx2,
+  dolphin,
+  xemu,
 };
 
 /** Looks up a built-in profile. Throws `LaunchError` for an id that is not one. */

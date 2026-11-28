@@ -11,7 +11,7 @@ Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs
 | Package | What it does |
 | --- | --- |
 | [`@uppercut-labs/cappy-adapter`](packages/cappy-adapter) | A typed client for Cappy's game adapter protocol v1: handshake, scenarios, recording and replay, heartbeat and error codes, plus a child-process runner with a clean shutdown |
-| [`@uppercut-labs/emulator-session`](packages/emulator-session) | Runs an emulator for a headless capture: isolated profile, muted and backgrounded, bounded output reader, window captures at set times, and a stop that signals only the launched process |
+| [`@uppercut-labs/emulator-session`](packages/emulator-session) | Runs an emulator for a headless capture: isolated profile, muted and backgrounded, bounded output reader, window captures at set times, and a stop that signals only the launched process. Profiles for ares, DuckStation, Flycast, PCSX2, PPSSPP, redream, Ymir, Dolphin (with DTM movie playback) and xemu |
 | [`@uppercut-labs/fgc-data`](packages/fgc-data) | Fighting-game rosters, gameplay summaries, a catalog of games with team-selection schemas, and builder helpers, as typed data |
 
 ### Python

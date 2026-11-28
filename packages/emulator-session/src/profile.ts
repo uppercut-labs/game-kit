@@ -4,18 +4,22 @@ import type { NoiseRule } from './lines.js';
 export type SettingValue = string | number | boolean;
 export type Settings = Readonly<Record<string, SettingValue>>;
 
+/** The text format of a settings file. */
+export type SettingsFormat = 'ini' | 'keyvalue' | 'toml';
+
 /**
  * How settings reach the emulator.
  *
  * - `flags`: one command-line fragment per setting. `flag` is the fragment, with `{key}` and `{value}` filled in.
  * - `file`: edited in place under the profile folder before the launch (created when it does not exist).
+ *   `ini` and `toml` files take `Section/Name` keys; `toml` writes each value as a TOML value (strings quoted).
  * - `overlay-file`: written fresh under the profile folder and named on the command line. `arg` holds `{file}`.
  * - `none`: the emulator takes no settings from here; overrides are refused.
  */
 export type SettingsTransport =
   | { kind: 'flags'; flag: readonly string[] }
-  | { kind: 'file'; path: string; format: 'ini' | 'keyvalue' }
-  | { kind: 'overlay-file'; path: string; format: 'ini' | 'keyvalue'; arg: string }
+  | { kind: 'file'; path: string; format: SettingsFormat }
+  | { kind: 'overlay-file'; path: string; format: SettingsFormat; arg: string }
   | { kind: 'none' };
 
 /** A launch recipe for one emulator, as data. It holds no install path, home folder or drive layout. */
@@ -176,6 +180,35 @@ export function applyIni(text: string, settings: Settings): string {
     if (!done) lines.splice(last, 0, `${name} = ${wanted}`);
   }
   return lines.length === 0 ? '' : lines.join(eol) + eol;
+}
+
+/** One setting value as TOML: a string as a basic string, a number and a boolean as themselves. */
+export function tomlValue(value: SettingValue): string {
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  if (typeof value === 'number') {
+    if (Number.isNaN(value)) return 'nan';
+    if (!Number.isFinite(value)) return value > 0 ? 'inf' : '-inf';
+    return String(value);
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Applies settings to the text of a TOML file with `[table]` headers and `key = value` lines, such as xemu's. A key
+ * is `table/name` (`display.ui/aspect_ratio`); a key with no slash is a top-level key. Values are written as TOML
+ * values, so a string is quoted. Existing lines are replaced in place, as `applyIni` does.
+ */
+export function applyToml(text: string, settings: Settings): string {
+  const encoded: Record<string, SettingValue> = {};
+  for (const [key, value] of Object.entries(settings)) encoded[key] = tomlValue(value);
+  return applyIni(text, encoded);
+}
+
+/** Applies settings in the given file format. */
+export function applyFormat(format: SettingsFormat, text: string, settings: Settings): string {
+  if (format === 'ini') return applyIni(text, settings);
+  if (format === 'toml') return applyToml(text, settings);
+  return applyKeyValue(text, settings);
 }
 
 /** Applies settings to the text of a `key=value` file with no sections. A value that exists is replaced in place. */

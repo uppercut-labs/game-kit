@@ -9,8 +9,7 @@ import {
   type EmulatorProfile,
   LaunchError,
   type Settings,
-  applyIni,
-  applyKeyValue,
+  applyFormat,
   expandArgs,
   fill,
   mergeSettings,
@@ -29,6 +28,13 @@ export interface SeedFile {
   optional?: boolean;
 }
 
+export interface ProfileFile {
+  /** Where it goes, relative to the profile folder. A path that leaves the folder is refused. */
+  to: string;
+  /** The whole text of the file. It replaces the file on every launch. */
+  text: string;
+}
+
 export interface QuitCommand {
   /** A command that asks this emulator to quit cleanly. `{pid}` is filled in. Run before any signal. */
   argv: readonly string[];
@@ -37,7 +43,10 @@ export interface QuitCommand {
 }
 
 export interface LaunchOptions {
-  /** A built-in profile id (`ares`, `ymir`, `flycast`, `redream`, `ppsspp`, `duckstation-regtest`, `pcsx2`) or a profile. */
+  /**
+   * A built-in profile id (`ares`, `ymir`, `flycast`, `redream`, `ppsspp`, `duckstation-regtest`, `pcsx2`, `dolphin`,
+   * `xemu`) or a profile.
+   */
   profile: string | EmulatorProfile;
   /** The emulator program. Omit it for a profile that runs from its own copy (`portable`). */
   executable?: string;
@@ -55,6 +64,8 @@ export interface LaunchOptions {
   installDir?: string;
   /** Files copied into the profile folder before the launch. */
   seedFiles?: readonly SeedFile[];
+  /** Files written into the profile folder after the seed files and before the settings, replacing what is there. */
+  writeFiles?: readonly ProfileFile[];
   /** Settings applied last, over the profile's defaults, background and mute settings. */
   settings?: Settings;
   /** Mute the emulator. Defaults to true. */
@@ -427,7 +438,7 @@ export async function launchEmulator(options: LaunchOptions): Promise<EmulatorSe
     }
   }
 
-  // Seed files first, so settings edits land on the seeded copies.
+  // Seed files and written files first, so settings edits land on them.
   for (const seed of options.seedFiles ?? []) {
     if (profileDir === undefined) throw new LaunchError('PROFILE_DIR_REQUIRED', 'seedFiles need profileDir');
     const target = resolveInside(profileDir, seed.to);
@@ -438,6 +449,12 @@ export async function launchEmulator(options: LaunchOptions): Promise<EmulatorSe
     if ((await exists(target)) && seed.overwrite !== true) continue;
     await mkdir(path.dirname(target), { recursive: true });
     await copyFile(seed.from, target);
+  }
+  for (const file of options.writeFiles ?? []) {
+    if (profileDir === undefined) throw new LaunchError('PROFILE_DIR_REQUIRED', 'writeFiles need profileDir');
+    const target = resolveInside(profileDir, file.to);
+    await mkdir(path.dirname(target), { recursive: true });
+    await writeFile(target, file.text, 'utf8');
   }
 
   let executable = options.executable;
@@ -491,14 +508,14 @@ export async function launchEmulator(options: LaunchOptions): Promise<EmulatorSe
       const file = resolveInside(profileDir ?? '', profile.settings.path);
       await mkdir(path.dirname(file), { recursive: true });
       const before = (await exists(file)) ? await readFile(file, 'utf8') : '';
-      const after = profile.settings.format === 'ini' ? applyIni(before, settings) : applyKeyValue(before, settings);
+      const after = applyFormat(profile.settings.format, before, settings);
       if (after !== before) await writeFile(file, after, 'utf8');
       break;
     }
     case 'overlay-file': {
       const file = resolveInside(profileDir ?? '', profile.settings.path);
       await mkdir(path.dirname(file), { recursive: true });
-      await writeFile(file, profile.settings.format === 'ini' ? applyIni('', settings) : applyKeyValue('', settings), 'utf8');
+      await writeFile(file, applyFormat(profile.settings.format, '', settings), 'utf8');
       settingArgs = entries === 0 ? [] : [fill(profile.settings.arg, { file })];
       break;
     }
