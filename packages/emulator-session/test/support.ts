@@ -22,6 +22,14 @@ afterEach(async () => {
   for (const folder of folders.splice(0)) await rm(folder, { recursive: true, force: true });
 });
 
+/**
+ * The exit `stop()` reports for the fake emulator ended by SIGTERM. On Unix the fake handles SIGTERM and exits with
+ * code 143. Windows has no signals: Node ends the process at once with TerminateProcess and reports the signal it was
+ * asked to send, so no handler runs.
+ */
+export const termExit =
+  process.platform === 'win32' ? { code: null, signal: 'SIGTERM' as const } : { code: 143, signal: null };
+
 export function isAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);

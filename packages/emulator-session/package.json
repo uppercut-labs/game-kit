@@ -1,6 +1,6 @@
 {
   "name": "@uppercut-labs/emulator-session",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Runs an emulator for a headless capture: an isolated profile with settings overrides, muted and allowed to run in the background, output read through a bounded line reader with noise filters, window captures at given seconds past boot latency, and a stop that signals only the launched process. Per-emulator launch profiles are data, with Dolphin (DTM movie playback) and xemu helpers.",
   "license": "MIT",
   "author": "Uppercut Labs <packages@uppercut-labs.com>",

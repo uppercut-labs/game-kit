@@ -13,6 +13,7 @@ npm install @uppercut-labs/emulator-session
 TypeScript compiled to ESM JavaScript, with no runtime dependencies. It needs Node 18 or later. The session, the line reader, the settings writers and the stop logic run on macOS, Linux and Windows. Two parts have limits:
 
 - Finding processes by command line (`ownedPids`, `stopOwned`) reads `/proc` on Linux and runs `ps` on macOS. It does not work on Windows.
+- Windows has no signals. Node ends the process at once for SIGTERM, the same as for SIGKILL, so the emulator gets no chance to save or flush. Pass `quit` when an emulator must exit cleanly there. `stop()` reports `{ code: null, signal: 'SIGTERM' }` for a process it ended.
 - Window pictures come from a command or function you supply. The package ships none, so it carries no OS-specific capture code. The macOS preset builds a `screencapture` command around a window id your finder prints. The sibling package `mac-window-tools` in the same repository is such a finder for macOS.
 
 Everything that belongs to one machine is yours to pass: `executable`, `profileDir`, `installDir`, the content files and any seed files. No profile names a path.
@@ -64,7 +65,7 @@ const exit = await session.stop();
 | `content` | The files to run. They must exist unless `checkContent` is false (it is false for headless runners) |
 | `system` | A system name the profile knows (ares: `n64`, `n64dd`, `64dd`, `32x`, `gba`, `psx`) |
 | `profileDir` | A folder owned by this run. Created when missing. Required by profiles that keep settings or state there |
-| `refuseProfileDirs` | Folders that must never be the profile folder, or contain it, such as the emulator's real configuration folder |
+| `refuseProfileDirs` | Folders that must never be the profile folder, or sit inside it, such as the emulator's real configuration folder. Letter case is ignored on Windows and macOS |
 | `seedFiles` | `{ from, to, overwrite?, optional? }`: files copied into the profile folder first. A seed never replaces a file the profile already has unless `overwrite` is true, and `to` may not leave the folder |
 | `writeFiles` | `{ to, text }`: files written into the profile folder after the seeds and before the settings, replacing what is there. `to` may not leave the folder |
 | `settings` | Overrides, applied last. Flags and files take them as the emulator spells them (`Audio/Mute`, `config:Dreamcast.Cable`, `EmuCore/GS/OsdShowMessages`, `Dolphin.DSP.Volume`, `display.ui/aspect_ratio`) |
@@ -215,7 +216,7 @@ npm install
 npm run check
 ```
 
-The tests run without an emulator, a display or a game. A small Node script stands in for the emulator: it records its arguments and environment, prints the lines a test asks for, ignores SIGTERM on request, and stands in for a window finder and a capture tool. They check the exact arguments built for each profile, settings files (INI, TOML and key-value), seeding and written files, the Dolphin and xemu option builders and DTM header reading, the line reader's bounds, capture timing and failure reporting, and that stopping signals only the launched process while a second process of the same kind survives.
+The tests run without an emulator, a display or a game. A small Node script stands in for the emulator: it records its arguments and environment, prints the lines a test asks for, ignores SIGTERM on request, quits cleanly when its quit file names it, and stands in for a window finder and a capture tool. They check the exact arguments built for each profile, settings files (INI, TOML and key-value), seeding and written files, the Dolphin and xemu option builders and DTM header reading, the line reader's bounds, capture timing and failure reporting, and that stopping signals only the launched process while a second process of the same kind survives.
 
 ## License
 

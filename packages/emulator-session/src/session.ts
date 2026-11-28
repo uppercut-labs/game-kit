@@ -419,9 +419,13 @@ export async function launchEmulator(options: LaunchOptions): Promise<EmulatorSe
   const profileDir = options.profileDir === undefined ? undefined : path.resolve(options.profileDir);
 
   if (profileDir !== undefined) {
+    // Windows and macOS paths ignore case by default, so `C:\Emu` and `c:\emu` are the same folder there.
+    const key = process.platform === 'win32' || process.platform === 'darwin' ? (folder: string) => folder.toLowerCase() : (folder: string) => folder;
+    const own = key(profileDir);
     for (const refused of options.refuseProfileDirs ?? []) {
       const folder = path.resolve(refused);
-      if (folder === profileDir || folder.startsWith(profileDir + path.sep)) {
+      const other = key(folder);
+      if (other === own || other.startsWith(own + path.sep)) {
         throw new LaunchError('PROFILE_DIR_REFUSED', `${profileDir} is, or holds, ${folder}; use a folder of its own`);
       }
     }

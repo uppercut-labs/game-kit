@@ -1,9 +1,9 @@
 import { type ChildProcess, spawn } from 'node:child_process';
-import { chmod, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { chmod, copyFile, link, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { type EmulatorProfile, LaunchError, launchEmulator, profiles, runAndCapture } from '../src/index.js';
-import { fakeCapture, fakeEmulator, fakeFinder, isAlive, scratch } from './support.js';
+import { fakeCapture, fakeEmulator, fakeFinder, isAlive, scratch, termExit } from './support.js';
 
 interface Recorded {
   argv: string[];
@@ -22,13 +22,15 @@ async function launchFake(profile: string | EmulatorProfile, extra: Partial<Para
     env: { FAKE_ARGS_OUT: record, ...fakeEnv, ...(extra.env ?? {}) },
   });
   const recorded = async (): Promise<Recorded> => {
-    for (let attempt = 0; attempt < 100; attempt += 1) {
+    // A Node start can take seconds on a busy machine, more so on Windows, so wait on a deadline, not a count.
+    const deadline = Date.now() + 10_000;
+    do {
       try {
         return JSON.parse(await readFile(record, 'utf8')) as Recorded;
       } catch {
         await new Promise((resolve) => setTimeout(resolve, 20));
       }
-    }
+    } while (Date.now() < deadline);
     throw new Error('the fake emulator never wrote its record');
   };
   await recorded();
@@ -147,27 +149,41 @@ describe('launch arguments', () => {
   it('runs a portable emulator from a copy in the profile folder with its config edited there', async () => {
     const install = await scratch();
     const profileDir = path.join(await scratch(), 'profile');
-    const program = path.join(install, 'fake-emu');
-    await writeFile(program, `#!/bin/sh\nexec "${process.execPath}" "${fakeEmulator}" "$@"\n`);
-    await chmod(program, 0o755);
+    // The stand-in program: a shell script on Unix. Windows runs only real executables without a shell, so there it
+    // is a copy of node.exe (a hard link when the volume allows) told to run the fake emulator.
+    const windows = process.platform === 'win32';
+    const name = windows ? 'fake-emu.exe' : 'fake-emu';
+    const program = path.join(install, name);
+    if (windows) {
+      await link(process.execPath, program).catch(() => copyFile(process.execPath, program));
+    } else {
+      await writeFile(program, `#!/bin/sh\nexec "${process.execPath}" "${fakeEmulator}" "$@"\n`);
+      await chmod(program, 0o755);
+    }
     await writeFile(path.join(install, 'flash.bin'), 'FLASH');
-    const profile: EmulatorProfile = { ...profiles.redream!, portable: { executable: 'fake-emu', files: ['fake-emu', 'flash.bin'] } };
+    const profile: EmulatorProfile = { ...profiles.redream!, portable: { executable: name, files: [name, 'flash.bin'] } };
     const file = await rom('game.cdi');
     const record = path.join(await scratch(), 'record.json');
     const session = await launchEmulator({
       profile,
       installDir: install,
       profileDir,
+      ...(windows ? { commandArgs: [fakeEmulator] } : {}),
       content: [file],
       settings: { cable: 'vga', width: 640 },
       env: { FAKE_ARGS_OUT: record },
     });
-    expect(session.executable).toBe(path.join(profileDir, 'fake-emu'));
+    expect(session.executable).toBe(path.join(profileDir, name));
     expect(await readFile(path.join(profileDir, 'flash.bin'), 'utf8')).toBe('FLASH');
     expect(await readFile(path.join(profileDir, 'redream.cfg'), 'utf8')).toBe('cable=vga\nwidth=640\n');
-    await session.waitForLine(() => true, { timeoutMs: 100 }).catch(() => undefined);
+    let seen: Recorded | undefined;
+    for (const deadline = Date.now() + 10_000; seen === undefined && Date.now() < deadline; ) {
+      seen = await readFile(record, 'utf8').then((text) => JSON.parse(text) as Recorded).catch(() => undefined);
+      if (seen === undefined) await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    expect(seen?.argv).toEqual([file]);
     await session.stop();
-  });
+  }, 20_000);
 
   it('refuses settings for an emulator that takes none', async () => {
     await expect(launchEmulator({ profile: 'ymir', executable: process.execPath, profileDir: await scratch(), mute: false, settings: { a: 1 } })).rejects.toMatchObject({ code: 'SETTINGS_UNSUPPORTED' });
@@ -195,6 +211,13 @@ describe('launch checks', () => {
     const base = await scratch();
     await expect(launchEmulator({ profile: 'pcsx2', executable: process.execPath, profileDir: base, refuseProfileDirs: [path.join(base, 'real-config')] })).rejects.toMatchObject({ code: 'PROFILE_DIR_REFUSED' });
     await expect(launchEmulator({ profile: 'pcsx2', executable: process.execPath, profileDir: base, refuseProfileDirs: [base] })).rejects.toMatchObject({ code: 'PROFILE_DIR_REFUSED' });
+  });
+
+  it.runIf(process.platform === 'win32' || process.platform === 'darwin')('refuses a refused folder written in other letter case where paths ignore case', async () => {
+    const base = await scratch();
+    const profileDir = path.join(base, 'Profile');
+    await expect(launchEmulator({ profile: 'pcsx2', executable: process.execPath, profileDir, refuseProfileDirs: [path.join(base, 'PROFILE', 'Real-Config')] })).rejects.toMatchObject({ code: 'PROFILE_DIR_REFUSED' });
+    await expect(launchEmulator({ profile: 'pcsx2', executable: process.execPath, profileDir, refuseProfileDirs: [profileDir.toUpperCase()] })).rejects.toMatchObject({ code: 'PROFILE_DIR_REFUSED' });
   });
 
   it('needs a profile folder for a profile that keeps settings in one', async () => {
@@ -302,7 +325,7 @@ describe('stopping', () => {
     const pid = session.pid;
     expect(isAlive(pid)).toBe(true);
     const exit = await session.stop();
-    expect(exit).toMatchObject({ code: 143, signal: null });
+    expect(exit).toMatchObject(termExit);
     expect(isAlive(pid)).toBe(false);
     expect(isAlive(other.pid ?? -1)).toBe(true);
     other.kill('SIGKILL');
@@ -312,19 +335,21 @@ describe('stopping', () => {
     const { session } = await launchFake('ymir', { profileDir: await scratch(), graceMs: 150 }, { FAKE_IGNORE_TERM: '1' });
     await session.waitUntil(0.2);
     const [first, second] = await Promise.all([session.stop(), session.stop()]);
-    expect(first.signal).toBe('SIGKILL');
+    // A Windows process cannot ignore SIGTERM: it ends at the first signal, so there is nothing to escalate.
+    expect(first.signal).toBe(process.platform === 'win32' ? 'SIGTERM' : 'SIGKILL');
     expect(second).toBe(first);
     expect(isAlive(session.pid)).toBe(false);
   });
 
   it('asks the emulator to quit before sending any signal', async () => {
+    const quitFile = path.join(await scratch(), 'quit');
     const { session } = await launchFake(
       'ymir',
       {
         profileDir: await scratch(),
-        quit: { argv: [process.execPath, '-e', 'process.kill(Number(process.argv[1]), "SIGUSR2")', '{pid}'], waitMs: 3000 },
+        quit: { argv: [process.execPath, '-e', 'require("node:fs").writeFileSync(process.argv[1], process.argv[2])', quitFile, '{pid}'], waitMs: 3000 },
       },
-      { FAKE_QUIT_SIGNAL: 'SIGUSR2' },
+      { FAKE_QUIT_FILE: quitFile },
     );
     await session.waitUntil(0.2);
     const exit = await session.stop();
@@ -486,7 +511,7 @@ describe('runAndCapture', () => {
     expect(result.ok).toBe(true);
     expect(result.captures.map((capture) => path.basename(capture.file))).toEqual(['a.png', 'b.png']);
     expect(result.stoppedBySession).toBe(true);
-    expect(result.exit).toMatchObject({ code: 143, signal: null });
+    expect(result.exit).toMatchObject(termExit);
     expect(result.lines).toEqual(['boot ok', 'UB-NAOMI frame 1']);
     expect(isAlive(result.pid)).toBe(false);
   });
