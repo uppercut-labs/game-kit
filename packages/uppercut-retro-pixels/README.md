@@ -1,6 +1,6 @@
 # uppercut-retro-pixels
 
-The pixel arithmetic that console ports keep retyping, as pure functions on bytes, integers and tuples: 16-bit colour formats, red/blue swap, the PSP block swizzle and its inverse, run-length coding, palette ramps and padded palettes, and a glyph-atlas packer that writes the metrics as a C header. Standard library only; no Pillow, no numpy. Turning a PNG into RGBA bytes (and running ImageMagick or a texture converter) stays with the caller.
+The pixel arithmetic that console ports keep retyping, as pure functions on bytes, integers and tuples: 16-bit colour formats, red/blue swap, the PSP block swizzle, the GameCube `RGBA8` tile layout and the original Xbox texture swizzle (each with its inverse), run-length coding, palette ramps and padded palettes, and a glyph-atlas packer that writes the metrics as a C header. Standard library only; no Pillow, no numpy. Turning a PNG into RGBA bytes (and running ImageMagick or a texture converter) stays with the caller.
 
 ```sh
 pip install uppercut-retro-pixels
@@ -11,7 +11,7 @@ Requires Python 3.10 or newer.
 ## Example
 
 ```python
-from uppercut_retro_pixels import ARGB4444, RGB565, encode, pack, swap_rb, swizzle
+from uppercut_retro_pixels import ARGB4444, RGB565, encode, nv2a_swizzle, pack, pack_gx_rgba8, swap_rb, swizzle
 
 # One pixel, or a whole RGBA image, into a console format
 value = encode(RGB565, 255, 128, 0)                       # 0xFC00
@@ -20,6 +20,10 @@ data = pack(ARGB4444, rgba_bytes, endian="little")        # two bytes a pixel
 # PSP wants BGR565, laid out in 16-byte by 8-row blocks
 psp = swizzle(pack(RGB565, rgba_bytes), row_bytes=64 * 2, height=64)
 bgr = swap_rb(RGB565, value)                              # the same pixel as BGR565
+
+# GameCube GX_TF_RGBA8 tiles, and an original Xbox A8R8G8B8 texture (pixels already in BGRA order)
+gx = pack_gx_rgba8(rgba_bytes, 128, 128)
+xbox = nv2a_swizzle(bgra_bytes, 128, 128)
 ```
 
 ## Formats
@@ -44,8 +48,17 @@ bgr = swap_rb(RGB565, value)                              # the same pixel as BG
 | `swizzle_items(items, width, height, *, block_width=8, block_height=8)` | The same reordering for a list of whole pixels. The default block fits 16-bit pixels; use `block_width=16` for 8-bit ones. |
 | `pack_nibbles(indices)` / `unpack_nibbles(data)` | 4-bit indices, two to a byte, the first in the low nibble. |
 | `morton_index(x, y, bits)` | The interleaved (twiddled) index Dreamcast textures use. |
+| `pack_gx_rgba8(rgba, width, height)` | RGBA bytes to GameCube and Wii `GX_TF_RGBA8` texture data. Width and height are multiples of 4. |
+| `unpack_gx_rgba8(data, width, height)` | The inverse, back to RGBA bytes. |
+| `nv2a_swizzle(data, width, height, *, bytes_per_pixel=4)` | Reorders a linear image into the original Xbox (NV2A) swizzled texture layout. Width and height are powers of two, not necessarily equal. |
+| `nv2a_unswizzle(data, width, height, *, bytes_per_pixel=4)` | The inverse. |
+| `nv2a_index(x, y, width, height)` | The pixel position of `(x, y)` in that layout. |
 
-A byte at `(x, y)` lands at `((y // 8) * (row_bytes // 16) + x // 16) * 128 + (y % 8) * 16 + x % 16`.
+In the PSP layout a byte at `(x, y)` lands at `((y // 8) * (row_bytes // 16) + x // 16) * 128 + (y % 8) * 16 + x % 16`.
+
+`GX_TF_RGBA8` cuts the image into 4x4 tiles, left to right, then top to bottom. Each tile takes 64 bytes: the alpha and red of its 16 pixels in row order (`A R A R ...`), then their green and blue (`G B G B ...`). For a mipmapped texture, pack each level with its own call and write them one after another.
+
+The NV2A layout interleaves the bits of x and y, x in the lowest bit, so a square texture is in Morton order (`nv2a_index(x, y, n, n) == morton_index(y, x, bits)`). When one side is longer, its extra high bits go on top: in an 8 by 2 texture the bits are x0, y0, x1, x2 from the lowest. Pixels are copied whole and their bytes are not reordered, so convert an `A8R8G8B8` texture to `BGRA` byte order before swizzling.
 
 ## Run-length coding
 

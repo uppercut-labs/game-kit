@@ -1,7 +1,19 @@
-"""Retro console pixel formats as pure functions on bytes and tuples."""
+"""Retro console pixel formats and texture layouts as pure functions on bytes and tuples."""
 
 from .atlas import Glyph, GlyphRect, metrics_header, outlined_cell_atlas, pack_glyphs
-from .blocks import morton_index, pack_nibbles, swizzle, swizzle_items, unpack_nibbles, unswizzle
+from .blocks import (
+    morton_index,
+    nv2a_index,
+    nv2a_swizzle,
+    nv2a_unswizzle,
+    pack_gx_rgba8,
+    pack_nibbles,
+    swizzle,
+    swizzle_items,
+    unpack_gx_rgba8,
+    unpack_nibbles,
+    unswizzle,
+)
 from .formats import (
     ABGR1555,
     ABGR4444,
@@ -42,9 +54,13 @@ __all__ = [
     "flatten",
     "metrics_header",
     "morton_index",
+    "nv2a_index",
+    "nv2a_swizzle",
+    "nv2a_unswizzle",
     "outlined_cell_atlas",
     "pack",
     "pack_glyphs",
+    "pack_gx_rgba8",
     "pack_nibbles",
     "pad_palette",
     "palette_bytes",
@@ -57,8 +73,9 @@ __all__ = [
     "swizzle",
     "swizzle_items",
     "unpack",
+    "unpack_gx_rgba8",
     "unpack_nibbles",
     "unswizzle",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
