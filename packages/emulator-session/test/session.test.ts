@@ -224,6 +224,23 @@ describe('launch checks', () => {
     await third.session.stop();
     await expect(launchEmulator({ profile: 'ymir', executable: process.execPath, profileDir, seedFiles: [{ from: clean, to: '../escape' }] })).rejects.toMatchObject({ code: 'PATH_OUTSIDE_PROFILE' });
   });
+
+  it('writes files into the profile after the seeds, replacing them, and refuses a target outside it', async () => {
+    const dir = await scratch();
+    const profileDir = path.join(dir, 'profile');
+    const seed = path.join(dir, 'seed.ini');
+    await writeFile(seed, 'SEEDED');
+    const { session } = await launchFake('ymir', {
+      profileDir,
+      seedFiles: [{ from: seed, to: 'Config/a.ini' }],
+      writeFiles: [{ to: 'Config/a.ini', text: 'WRITTEN' }, { to: 'Config/deep/b.ini', text: 'B' }],
+    });
+    expect(await readFile(path.join(profileDir, 'Config', 'a.ini'), 'utf8')).toBe('WRITTEN');
+    expect(await readFile(path.join(profileDir, 'Config', 'deep', 'b.ini'), 'utf8')).toBe('B');
+    await session.stop();
+    await expect(launchEmulator({ profile: 'ymir', executable: process.execPath, profileDir, writeFiles: [{ to: '../escape', text: '' }] })).rejects.toMatchObject({ code: 'PATH_OUTSIDE_PROFILE' });
+    await expect(launchEmulator({ profile: 'ares', system: 'gba', executable: process.execPath, writeFiles: [{ to: 'x', text: '' }] })).rejects.toMatchObject({ code: 'PROFILE_DIR_REQUIRED' });
+  });
 });
 
 describe('output', () => {

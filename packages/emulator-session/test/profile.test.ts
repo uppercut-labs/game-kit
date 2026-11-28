@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LaunchError, applyIni, applyKeyValue, expandArgs, mergeSettings, renderFlags } from '../src/index.js';
+import { LaunchError, applyIni, applyKeyValue, applyToml, expandArgs, mergeSettings, renderFlags, tomlValue } from '../src/index.js';
 
 describe('applyIni', () => {
   it('replaces a value in place and keeps the rest of the file', () => {
@@ -21,6 +21,23 @@ describe('applyIni', () => {
 
   it('keeps a key of the same name in another section', () => {
     expect(applyIni('[A]\nx = 1\n[B]\nx = 2\n', { 'B/x': 9 })).toBe('[A]\nx = 1\n[B]\nx = 9\n');
+  });
+});
+
+describe('applyToml', () => {
+  it('writes TOML values: strings quoted, numbers and booleans bare', () => {
+    expect(applyToml('', { 'display.ui/aspect_ratio': 'native', 'audio/volume_limit': 0.5, 'general/show_welcome': false })).toBe(
+      '[display.ui]\naspect_ratio = "native"\n\n[audio]\nvolume_limit = 0.5\n\n[general]\nshow_welcome = false\n',
+    );
+    expect(tomlValue('C:\\x "y"')).toBe('"C:\\\\x \\"y\\""');
+    expect([tomlValue(Number.NaN), tomlValue(Number.POSITIVE_INFINITY), tomlValue(-Infinity), tomlValue(3)]).toEqual(['nan', 'inf', '-inf', '3']);
+  });
+
+  it('replaces a value the emulator wrote in its own quoting and keeps the rest', () => {
+    const before = "[display.window]\nstartup_size = '1280x720'\nlast_width = 1280\n\n[sys.files]\nhdd_path = '/old'\n";
+    expect(applyToml(before, { 'display.window/startup_size': '640x480', 'sys.files/hdd_path': '/new' })).toBe(
+      '[display.window]\nstartup_size = "640x480"\nlast_width = 1280\n\n[sys.files]\nhdd_path = "/new"\n',
+    );
   });
 });
 
