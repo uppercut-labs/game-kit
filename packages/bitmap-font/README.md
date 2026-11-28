@@ -276,13 +276,15 @@ The 8x8 table is the 32X HUD's, unchanged: no other 8x8 table exists to compare 
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 1.1.0:
+Tested:
 
-| System | Toolchain | Result |
-| --- | --- | --- |
-| Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `./tools/check-c.sh` from the repository root; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
-| Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
-| macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
+| Version | System | Toolchain | Result |
+| --- | --- | --- | --- |
+| 1.1.0 | Linux arm64 (Ubuntu 22.04, in a container) | gcc 11.4, CMake 3.22, `build-and-test.sh`; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
+| 1.1.0 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `build-and-test.sh` in the repository and in the packed source, and the example consumer | pass |
+| 1.0.0 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13, `./tools/check-c.sh` from the repository root; also `-std=c99 -pedantic` under AddressSanitizer and UBSan | pass |
+| 1.0.0 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
+| 1.0.0 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 
 Build and run the tests, from this folder:
 
