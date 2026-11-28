@@ -1,5 +1,5 @@
 /* An EEPROM in RAM, with faults on demand: for a game's tests, and for a build that has no chip (an emulator without
- * one). Part of kos-naomi-cabinet 1.0.0 (MIT). */
+ * one). Part of kos-naomi-cabinet 1.0.1 (MIT). */
 #ifndef KCAB_RAM_H
 #define KCAB_RAM_H
 

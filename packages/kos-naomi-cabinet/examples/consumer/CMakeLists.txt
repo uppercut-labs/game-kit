@@ -13,7 +13,7 @@ include(FetchContent)
 set(KCAB_SAVE_BLOCK OFF CACHE STRING "")
 FetchContent_Declare(kos_naomi_cabinet
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        kos-naomi-cabinet@1.0.0
+  GIT_TAG        kos-naomi-cabinet@1.0.1
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/kos-naomi-cabinet)
 FetchContent_MakeAvailable(kos_naomi_cabinet)

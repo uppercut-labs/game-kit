@@ -36,12 +36,13 @@ static void bios_bytes(uint8_t image[KCAB_EEPROM_BYTES], uint8_t seed)
     image[20] ^= 0x5A;
 }
 
-static void make_block(uint8_t *data, const KcabBlock *b, uint8_t seed)
+/* cap is the buffer size, so the loop is bounded where the compiler can see it (gcc 14 cannot prove b->size fits) */
+static void make_block(uint8_t *data, size_t cap, const KcabBlock *b, uint8_t seed)
 {
-    int i;
+    size_t i;
 
     memcpy(data, MAGIC, 4);
-    for (i = 4; i < b->size; i++) {
+    for (i = 4; i < b->size && i < cap; i++) {
         data[i] = (uint8_t)(seed + i * 5);
     }
 }
@@ -110,7 +111,7 @@ static void test_store(void)
     }
     bios_bytes(image, 3);
     memcpy(before, image, sizeof(image));
-    make_block(data, &two, 9);
+    make_block(data, sizeof(data), &two, 9);
     CHECK(kcab_image_store(image, &two, data) == KCAB_OK, "store");
     CHECK(memcmp(image, before, KCAB_SYSTEM_BYTES) == 0, "bytes 0..35 are untouched");
     CHECK(memcmp(image + 44, data, 10) == 0 && memcmp(image + 54, data, 10) == 0, "both copies are there");
@@ -128,13 +129,13 @@ static void test_store(void)
     bios_bytes(image, 5);
     memcpy(before, image, sizeof(image));
     one.size = 84;
-    make_block(data, &one, 1);
+    make_block(data, sizeof(data), &one, 1);
     CHECK(kcab_image_store(image, &one, data) == KCAB_OK, "store 84");
     CHECK(memcmp(image, before, KCAB_SYSTEM_BYTES) == 0 && memcmp(image + 44, data, 84) == 0, "84 bytes fill the area");
     CHECK(kcab_image_fetch(image, &one, out) == KCAB_OK && memcmp(out, data, 84) == 0, "fetch 84");
 
     /* refusals */
-    make_block(data, &two, 2);
+    make_block(data, sizeof(data), &two, 2);
     data[0] = 'X';
     CHECK(kcab_image_store(image, &two, data) == KCAB_BAD_ARGUMENT, "a block that does not start with the magic is refused");
     CHECK(kcab_image_store(image, NULL, data) == KCAB_BAD_ARGUMENT && kcab_image_store(NULL, &two, data) == KCAB_BAD_ARGUMENT &&
@@ -151,7 +152,7 @@ static void test_flips_two_copies(void)
 
     memset(good, 0xFF, sizeof(good));
     bios_bytes(good, 1);
-    make_block(data, &b, 4);
+    make_block(data, sizeof(data), &b, 4);
     kcab_image_store(good, &b, data);
     for (byte = 0; byte < 128; byte++) {
         for (bit = 0; bit < 8; bit++) {
@@ -202,7 +203,7 @@ static void test_flips_one_copy(void)
 
     memset(good, 0xFF, sizeof(good));
     bios_bytes(good, 2);
-    make_block(data, &b, 6);
+    make_block(data, sizeof(data), &b, 6);
     kcab_image_store(good, &b, data);
     for (byte = 36; byte < 128; byte++) {
         for (bit = 0; bit < 8; bit++) {
@@ -233,7 +234,7 @@ static void test_empty(void)
     memset(image, 0x00, sizeof(image));
     CHECK(kcab_image_fetch(image, &b, out) == KCAB_EMPTY, "a zeroed chip");
     memset(image, 0xFF, sizeof(image));
-    make_block(data, &other, 1);
+    make_block(data, sizeof(data), &other, 1);
     kcab_image_store(image, &other, data);
     CHECK(kcab_image_fetch(image, &b, out) == KCAB_EMPTY, "another layout's block (other size) is empty to this one");
     CHECK(kcab_image_fetch(image, &other, out) == KCAB_OK, "and fine to its own");
@@ -260,7 +261,7 @@ static void test_bios_fix_crc(void)
     uint8_t data[80], image[KCAB_EEPROM_BYTES], theirs[KCAB_EEPROM_BYTES];
     int i, sizes[3] = { 0xFF, 0x00, 0x08 };
 
-    make_block(data, &b, 3);
+    make_block(data, sizeof(data), &b, 3);
 
     /* our image is a fixed point of it: the header we write is what fix_crc would compute */
     memset(image, 0xFF, sizeof(image));
@@ -300,7 +301,7 @@ static void test_over_a_chip(void)
     kcab_ram_init(&ram, 0xFF);
     memcpy(ram.image, bios, sizeof(bios)); /* the BIOS's bytes on an otherwise blank chip */
     e = kcab_ram_eeprom(&ram);
-    make_block(data, &b, 1);
+    make_block(data, sizeof(data), &b, 1);
 
     CHECK(kcab_block_load(&e, &b, out) == KCAB_EMPTY, "load from a blank chip");
     CHECK(kcab_block_save(&e, &b, data) == KCAB_OK, "save");
@@ -310,7 +311,7 @@ static void test_over_a_chip(void)
     /* a second save replaces the first and keeps everything else on the chip as it was */
     ram.image[100] = 0x77; /* another program's byte after the block */
     memcpy(before, ram.image, sizeof(before));
-    make_block(data, &b, 50);
+    make_block(data, sizeof(data), &b, 50);
     CHECK(kcab_block_save(&e, &b, data) == KCAB_OK, "save again");
     CHECK(ram.image[100] == 0x77 && memcmp(ram.image, bios, KCAB_SYSTEM_BYTES) == 0, "the rest is kept");
     CHECK(kcab_block_load(&e, &b, out) == KCAB_OK && memcmp(out, data, 12) == 0, "load the new one");
@@ -326,7 +327,7 @@ static void test_over_a_chip(void)
 
     /* the write is refused: nothing changes */
     memcpy(before, ram.image, sizeof(before));
-    make_block(data, &b, 99);
+    make_block(data, sizeof(data), &b, 99);
     ram.fail_writes = 1;
     CHECK(kcab_block_save(&e, &b, data) == KCAB_WRITE_FAILED && memcmp(before, ram.image, sizeof(before)) == 0, "write refused");
     CHECK(kcab_block_load(&e, &b, out) == KCAB_OK && memcmp(out, data, 12) != 0, "the old save is still there");
@@ -342,9 +343,9 @@ static void test_over_a_chip(void)
        whole new one, never a mix. */
     kcab_ram_init(&ram, 0xFF);
     memcpy(ram.image, bios, sizeof(bios));
-    make_block(old_data, &b, 8);
+    make_block(old_data, sizeof(old_data), &b, 8);
     CHECK(kcab_block_save(&e, &b, old_data) == KCAB_OK, "a good first save");
-    make_block(data, &b, 20);
+    make_block(data, sizeof(data), &b, 20);
     ram.drop_write_after = 60;
     CHECK(kcab_block_save(&e, &b, data) == KCAB_VERIFY_FAILED, "a torn write is caught");
     ram.drop_write_after = 0;
