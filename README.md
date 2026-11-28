@@ -43,6 +43,7 @@ Every package is at version 1.0.0. npm packages are on npm under `@uppercut-labs
 | [`bitmap-font`](packages/bitmap-font) | Small bitmap fonts (5x7, 8x8 and 3x5 title letters) as tables, drawn through a callback per run of pixels, generated from one data file for C and Python |
 | [`det-core`](packages/det-core) | The deterministic numeric core of a game simulation: exact-width types, saturating Q16.16 fixed point, FNV-1a and xorshift32, integer only |
 | [`gba-tile-ui`](packages/gba-tile-ui) | Shadow tile maps and sprite table for a Game Boy Advance game, copied to VRAM and OAM once a frame when dirty, so screen code is tested on a host |
+| [`hud-path-font`](packages/hud-path-font) | A single-stroke HUD font as paths on a drafting grid, baked once into a 4-bit coverage atlas through a callback, or stroked directly by a line renderer |
 | [`kos-naomi-cabinet`](packages/kos-naomi-cabinet) | What a Sega NAOMI game built with KallistiOS needs from the cabinet: EEPROM settings the BIOS accepts, coin credits, test and service switch edges, and a save-block adapter, all tested without a cabinet |
 | [`libretro-guest-probe`](packages/libretro-guest-probe) | Runs a libretro core with no window or audio, feeds it scripted pad input and reads guest memory, so a test proves a port's input on an emulator core |
 | [`minimal-png`](packages/minimal-png) | A PNG writer with no zlib for frame dumps, screenshot keys and debug atlases: stored deflate blocks, any viewer opens the file |
