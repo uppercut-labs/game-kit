@@ -15,7 +15,7 @@ tested without one:
   that wants save-block's two alternating slots.
 
 The logic takes the EEPROM as two callbacks (`KcabEeprom`), so a host test uses the RAM chip in the package, with faults.
-Version 1.0.0. Written in C (C99) with CMake. MIT licence.
+Version 1.0.1. Written in C (C99) with CMake. MIT licence.
 
 ## What is not in it
 
@@ -34,7 +34,7 @@ This is a C library, so it is not on a package index. A project takes it at a re
 include(FetchContent)
 FetchContent_Declare(kos_naomi_cabinet
   GIT_REPOSITORY https://github.com/uppercut-labs/game-kit.git
-  GIT_TAG        kos-naomi-cabinet@1.0.0
+  GIT_TAG        kos-naomi-cabinet@1.0.1
   GIT_SHALLOW    TRUE
   SOURCE_SUBDIR  packages/kos-naomi-cabinet)
 FetchContent_MakeAvailable(kos_naomi_cabinet)
@@ -175,11 +175,12 @@ to the store until its first save replaces it. A game that keeps more than 26 by
 | `build-and-test.ps1` | Windows | PowerShell 5.1 or 7 |
 | `build-and-test.sh` | macOS, Linux | Bash or zsh |
 
-Tested at 1.0.0:
+Tested at 1.0.0, and at 1.0.1 where the row says so:
 
 | System | Toolchain | Result |
 | --- | --- | --- |
 | Linux x86-64 (Ubuntu 24.04, in a container) | gcc 13 and clang 18, `-Wall -Wextra -Wpedantic -Werror`; gcc under AddressSanitizer and UBSan | pass (eeprom 1,840 checks, cabinet 36, glue 24, adapter 50) |
+| Linux arm64 (Debian 13, in a container) | gcc 14.2.0 and clang 19.1.7, `-Wall -Wextra -Wpedantic -Werror` | pass (1.0.1; 1.0.0 failed here, because gcc 14 reported `-Wstringop-overflow` in the test helper `make_block`) |
 | Windows 11 Pro (10.0.26300) | MSYS2 UCRT64 clang 22.1.8, CMake 4.4.3, Ninja 1.13.2, `tools\check-c.ps1` in PowerShell 7 | pass |
 | macOS 27.0 (Apple M6) | Apple clang 21.0.0, CMake 4.5.1, Ninja, `tools/check-c.sh` | pass |
 | KallistiOS at commit `9926b70aeafc`, NAOMI subarchitecture (`_arch_sub_naomi`), Docker (linux/amd64) on Apple M6 | sh-elf-gcc 15.2.0; a KOS Makefile (`kos-cc`, `Makefile.rules`) compiles `src/eeprom.c`, `src/cabinet.c`, `src/ram.c`, `src/kos.c` and `src/kos_naomi_mode.c` with `-Wall -Wextra -Werror` and links them with `-Wl,--wrap=hardware_sys_mode` into a NAOMI test ELF that polls for the board, loads and saves a settings block and reads coins and switches; `src/kos.c` and `src/kos_naomi_mode.c` also compile with `-std=c99 -Wpedantic -Werror` | builds clean; the MIE calls (`mie_get_eeprom`, `mie_set_eeprom`, `mie_port0_mode`) and the `hardware_sys_mode` wrap resolve in the link |
