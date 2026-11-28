@@ -92,12 +92,16 @@ static void test_known_glyphs(void)
     static const unsigned char DOT[7] = { 0, 0, 0, 0, 0, 12, 12 };
     static const unsigned char A8[8] = { 0x3C, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x66, 0x00 };
     static const unsigned char P3[5] = { 6, 5, 6, 4, 4 };
+    static const unsigned char PERCENT3[5] = { 5, 1, 2, 4, 5 };
+    static const unsigned char M3[5] = { 7, 7, 5, 5, 5 };
 
     CHECK(rows_equal(bfont_glyph(&bfont_5x7, 'A'), A, 7), "5x7 A");
     CHECK(rows_equal(bfont_glyph(&bfont_5x7, 'I'), I, 7), "5x7 I is centred with serifs");
     CHECK(rows_equal(bfont_glyph(&bfont_5x7, '.'), DOT, 7), "5x7 full stop is two wide");
     CHECK(rows_equal(bfont_glyph(&bfont_8x8, 'A'), A8, 8), "8x8 A");
-    CHECK(rows_equal(bfont_glyph(&bfont_3x5, 'P'), P3, 5), "3x5 P");
+    CHECK(rows_equal(bfont_glyph(&bfont_3x5, 'P'), P3, 5), "3x5 P keeps its open bowl");
+    CHECK(rows_equal(bfont_glyph(&bfont_3x5, '%'), PERCENT3, 5), "3x5 percent");
+    CHECK(rows_equal(bfont_glyph(&bfont_3x5, 'M'), M3, 5), "3x5 M");
     CHECK(bfont_5x7.width == 5 && bfont_5x7.height == 7 && bfont_5x7.advance == 6, "5x7 metrics");
     CHECK(bfont_8x8.width == 8 && bfont_8x8.height == 8 && bfont_8x8.advance == 8, "8x8 metrics");
     CHECK(bfont_3x5.width == 3 && bfont_3x5.height == 5 && bfont_3x5.advance == 4, "3x5 metrics");
@@ -137,6 +141,10 @@ static void test_coverage(void)
 {
     int c, n5 = 0, n8 = 0, n3 = 0;
     static const char *const TITLE = "!ABDEHILPTUX";
+    static const unsigned char TITLE_ROWS[12][5] = {
+        { 2, 2, 2, 0, 2 }, { 2, 5, 7, 5, 5 }, { 6, 5, 6, 5, 6 }, { 6, 5, 5, 5, 6 }, { 7, 4, 6, 4, 7 }, { 5, 5, 7, 5, 5 },
+        { 7, 2, 2, 2, 7 }, { 4, 4, 4, 4, 7 }, { 6, 5, 6, 4, 4 }, { 7, 2, 2, 2, 2 }, { 5, 5, 5, 5, 7 }, { 5, 5, 2, 5, 5 },
+    };
 
     for (c = 0; c < 256; c++) {
         n5 += bfont_glyph(&bfont_5x7, c) != NULL;
@@ -146,14 +154,17 @@ static void test_coverage(void)
     /* 67 drawn in the 5x7 table, plus the 26 lowercase letters that fold onto capitals */
     CHECK(n5 == 67 + 26, "5x7 reaches %d codes", n5);
     CHECK(n8 == 64 + 26, "8x8 reaches %d codes", n8);
-    CHECK(n3 == 12 + 11, "3x5 reaches %d codes", n3);
+    /* the 3x5 font draws the same 67 codes as the 5x7 font */
+    CHECK(n3 == 67 + 26, "3x5 reaches %d codes", n3);
+    for (c = 0; c < 256; c++) {
+        CHECK((bfont_glyph(&bfont_3x5, c) != NULL) == (bfont_glyph(&bfont_5x7, c) != NULL), "3x5 and 5x7 agree on %d", c);
+    }
     for (c = 0x20; c <= 0x5F; c++) {
         CHECK(bfont_glyph(&bfont_8x8, c) != NULL, "8x8 has %d", c);
     }
     for (c = 0; TITLE[c]; c++) {
-        CHECK(bfont_glyph(&bfont_3x5, TITLE[c]) != NULL, "3x5 has %c", TITLE[c]);
+        CHECK(rows_equal(bfont_glyph(&bfont_3x5, TITLE[c]), TITLE_ROWS[c], 5), "3x5 %c keeps its 1.0.0 shape", TITLE[c]);
     }
-    CHECK(bfont_glyph(&bfont_3x5, 'Z') == NULL, "3x5 has no Z");
 }
 
 static void test_lookup_edges(void)
@@ -167,7 +178,8 @@ static void test_lookup_edges(void)
     CHECK(bfont_glyph(&bfont_5x7, '{') == NULL, "brace is not drawn");
     CHECK(bfont_glyph(&bfont_8x8, 'a') == bfont_glyph(&bfont_8x8, 'A'), "8x8 lowercase folds");
     CHECK(bfont_glyph(&bfont_8x8, '`') == NULL, "8x8 stops at 0x5F");
-    CHECK(bfont_glyph(&bfont_3x5, 'z') == NULL, "no capital Z to fold to");
+    CHECK(bfont_glyph(&bfont_3x5, 'z') == bfont_glyph(&bfont_3x5, 'Z'), "3x5 z folds to Z");
+    CHECK(bfont_glyph(&bfont_3x5, '{') == NULL, "3x5 brace is not drawn");
     CHECK(bfont_glyph(NULL, 'A') == NULL, "null font");
     CHECK(bfont_glyph(&bfont_5x7, ' ') != NULL, "space is a glyph");
 }

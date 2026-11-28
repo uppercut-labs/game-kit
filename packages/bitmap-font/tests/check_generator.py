@@ -70,7 +70,7 @@ check(raises("font 3x2 advance 4\nglyph 0x41\nabc\n", "unexpected text"), "junk"
 # --- the shipped source
 real = gen.load()
 check(list(real) == ["5x7", "8x8", "3x5"], "the shipped fonts")
-check(len(real["5x7"].glyphs) == 67 and len(real["8x8"].glyphs) == 64 and len(real["3x5"].glyphs) == 12, "glyph counts")
+check(len(real["5x7"].glyphs) == 67 and len(real["8x8"].glyphs) == 64 and len(real["3x5"].glyphs) == 67, "glyph counts")
 check(real["8x8"].first == 0x20 and real["8x8"].last == 0x5F, "8x8 covers 0x20 to 0x5F with no gaps")
 check(sorted(real["8x8"].glyphs) == list(range(0x20, 0x60)), "8x8 has every code in its range")
 check(all(c not in real["5x7"].glyphs for c in range(ord("a"), ord("z") + 1)), "5x7 has no lowercase")

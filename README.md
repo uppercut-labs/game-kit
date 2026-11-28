@@ -42,7 +42,7 @@ Every package is at version 1.0.0 or later; each README gives its current versio
 
 | Package | What it does |
 | --- | --- |
-| [`bitmap-font`](packages/bitmap-font) | Small bitmap fonts (5x7, 8x8 and 3x5 title letters) as tables, drawn through a callback per run of pixels, generated from one data file for C and Python |
+| [`bitmap-font`](packages/bitmap-font) | Small bitmap fonts (5x7, 8x8 and 3x5) as tables, drawn through a callback per run of pixels, generated from one data file for C and Python |
 | [`det-core`](packages/det-core) | The deterministic numeric core of a game simulation: exact-width types (optionally the console SDK's own), saturating Q16.16 fixed point, FNV-1a and xorshift32, integer only |
 | [`gba-tile-ui`](packages/gba-tile-ui) | Shadow tile maps and sprite table for a Game Boy Advance game, copied to VRAM and OAM once a frame when dirty, so screen code is tested on a host |
 | [`hud-path-font`](packages/hud-path-font) | A single-stroke HUD font as paths on a drafting grid, baked once into a 4-bit coverage atlas through a callback, or stroked directly by a line renderer |
