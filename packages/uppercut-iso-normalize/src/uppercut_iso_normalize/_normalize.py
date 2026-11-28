@@ -66,6 +66,7 @@ def normalize_disc(
     *,
     elf_name: str,
     system_cnf: Optional[Sequence[bytes]] = None,
+    versioned: bool = False,
 ) -> None:
     """Normalize a disc image in place, after checking that it is the disc it should be.
 
@@ -77,11 +78,15 @@ def normalize_disc(
     ``system_cnf`` is the list of lines ``SYSTEM.CNF`` must hold (default ``ps2_system_cnf(elf_name)``). ``elf`` is
     the file the disc's ELF must equal, and must be a 32-bit little-endian MIPS executable.
 
+    With ``versioned``, the names on the disc must already end in ``;1`` (as pycdlib writes them) and are kept as
+    they are, and a set volume effective date is fixed too.
+
     Raises ``IsoNormalizeError`` (a ``ValueError``) and leaves ``image`` unchanged when anything does not match.
     """
     if not _ELF_NAME.match(elf_name):
         raise IsoNormalizeError(f"{elf_name!r} is not an ISO 9660 level 1 file name (8.3, capitals, digits and underscores)")
-    expected_names = {SYSTEM_CNF_NAME, elf_name.encode("ascii")}
+    suffix = b";1" if versioned else b""
+    expected_names = {SYSTEM_CNF_NAME + suffix, elf_name.encode("ascii") + suffix}
     expected_config = list(system_cnf) if system_cnf is not None else ps2_system_cnf(elf_name)
 
     terminator = PRIMARY + SECTOR_SIZE
@@ -113,24 +118,26 @@ def normalize_disc(
             if name in files or record[25] & 0x82 or start < end or start + size > len(image):
                 raise IsoNormalizeError("invalid PS2 disc file extent")
             files[name] = bytes(image[start : start + size])
-            # The IOP CD filesystem looks up disc files with ISO9660 version 1.
-            # The two extra characters preserve the identifier's padding parity.
-            name_end = 33 + record[32]
-            record[name_end:name_end] = b";1"
-            if len(record) > 255:
-                raise IsoNormalizeError("revised ISO9660 directory record is longer than 255 bytes")
-            record[0] = len(record)
-            record[32] += 2
+            if not versioned:
+                # The IOP CD filesystem looks up disc files with ISO9660 version 1.
+                # The two extra characters preserve the identifier's padding parity.
+                name_end = 33 + record[32]
+                record[name_end:name_end] = b";1"
+                if len(record) > 255:
+                    raise IsoNormalizeError("revised ISO9660 directory record is longer than 255 bytes")
+                record[0] = len(record)
+                record[32] += 2
         directory.extend(record)
         offset += length
 
     if files.keys() != expected_names:
-        raise IsoNormalizeError(f"disc must contain only SYSTEM.CNF and {elf_name}")
-    if files[SYSTEM_CNF_NAME].splitlines() != expected_config:
+        names = f"SYSTEM.CNF;1 and {elf_name};1" if versioned else f"SYSTEM.CNF and {elf_name}"
+        raise IsoNormalizeError(f"disc must contain only {names}")
+    if files[SYSTEM_CNF_NAME + suffix].splitlines() != expected_config:
         raise IsoNormalizeError(f"SYSTEM.CNF does not point to {elf_name};1")
     if len(elf) < 52 or elf[:7] != b"\x7fELF\x01\x01\x01" or elf[16:20] != b"\x02\0\x08\0":
         raise IsoNormalizeError("expected a 32-bit little-endian MIPS executable ELF")
-    if files[elf_name.encode("ascii")] != elf:
+    if files[elf_name.encode("ascii") + suffix] != elf:
         raise IsoNormalizeError("disc ELF differs from the input ELF")
     if len(directory) > directory_size:
         raise IsoNormalizeError("revised ISO9660 directory exceeds one sector")
@@ -139,3 +146,6 @@ def normalize_disc(
     # Normalize the primary descriptor's root record, creation and modification dates.
     image[PRIMARY + 174 : PRIMARY + 181] = SHORT_DATE
     image[PRIMARY + 813 : PRIMARY + 847] = LONG_DATE * 2
+    # pycdlib also sets the effective date to the time of the build; an unset date is all zero digits.
+    if versioned and bytes(image[PRIMARY + 864 : PRIMARY + 880]) != b"0" * 16:
+        image[PRIMARY + 864 : PRIMARY + 881] = LONG_DATE
